@@ -77,7 +77,7 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
         <span className="text-sm text-slate-500 font-medium">7일간</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2">
         {uniqueDaily.map((item, index) => {
           const { dayName, fullDate } = formatDay(item.dt, index);
           const date = new Date(item.dt * 1000);
@@ -90,9 +90,9 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
           return (
             <div
               key={`${item.dt}-${index}`}
-              className="flex items-center justify-between p-2 bg-gray-100 rounded-2xl"
+              className="flex items-center justify-between p-2 sm:p-3 bg-slate-50/60 rounded-2xl overflow-hidden"
             >
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <div className="text-sm font-semibold">
                   <span
                     className={cn(
@@ -103,36 +103,40 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
                         : "text-slate-800"
                     )}
                   >
-                    {index === 0 ? "오늘" : index === 1 ? "내일" : dayName}
+                    <span className="truncate">
+                      {index === 0 ? "오늘" : index === 1 ? "내일" : dayName}
+                    </span>
                   </span>
                 </div>
-                <div className="text-xs text-slate-400">{fullDate}</div>
+                <div className="text-xs text-slate-400 truncate">
+                  {fullDate}
+                </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 flex items-center justify-center bg-white rounded-full shadow-sm">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-white rounded-full shadow-sm">
                   {React.createElement(Icon, {
-                    className: "w-5 h-5 text-slate-700",
+                    className: "w-4 h-4 sm:w-5 sm:h-5 text-slate-700",
                     strokeWidth: 1.5,
                   })}
                 </div>
               </div>
-              <div className="ml-3 text-right">
+              <div className="ml-3 text-right min-w-0">
                 {item.pop > 0 ? (
                   <div className="flex items-center gap-1 justify-end">
                     <Droplets className="w-3 h-3 text-blue-400" />
-                    <span className="text-md font-semibold text-blue-600">
+                    <span className="text-sm sm:text-md font-semibold text-blue-600 truncate">
                       {formatPop(item.pop)}
                     </span>
                   </div>
                 ) : (
-                  <div className="text-m text-slate-400">0%</div>
+                  <div className="text-sm text-slate-400">0%</div>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <div className="text-md text-blue-500">
+                <div className="text-sm sm:text-md text-blue-500">
                   {Math.round(item.temp.min)}°
                 </div>
-                <div className="text-md font-bold text-red-500">
+                <div className="text-sm sm:text-md font-bold text-red-500">
                   {Math.round(item.temp.max)}°
                 </div>
               </div>

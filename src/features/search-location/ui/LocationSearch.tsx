@@ -201,7 +201,7 @@ export const LocationSearch = ({
                   )}
                 >
                   <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <span className="text-[15px] text-slate-900">
+                  <span className="text-[15px] text-slate-900 truncate">
                     {place.replace(/-/g, " ")}
                   </span>
                 </li>

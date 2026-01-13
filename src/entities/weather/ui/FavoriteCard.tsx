@@ -60,7 +60,7 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
 
   return (
     <Card
-      className="group relative cursor-pointer hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] overflow-hidden bg-white/90 border-slate-200/50 p-5"
+      className="group relative cursor-pointer hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] overflow-hidden bg-white/90 border-slate-200/50 p-4 sm:p-5"
       onClick={handleCardClick}
     >
       {isEditing ? (
@@ -113,7 +113,13 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
               className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-red-400 hover:text-red-600"
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm(`즐겨찾기 '${favorite.alias || favorite.name}'을(를) 삭제하시겠습니까?`)) {
+                if (
+                  confirm(
+                    `즐겨찾기 '${
+                      favorite.alias || favorite.name
+                    }'을(를) 삭제하시겠습니까?`
+                  )
+                ) {
                   removeFavorite(favorite.id);
                 }
               }}
@@ -126,12 +132,15 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <WeatherIcon className="w-12 h-12 text-blue-500" strokeWidth={1.5} />
+          <WeatherIcon
+            className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500"
+            strokeWidth={1.5}
+          />
           <div>
-            <div className="text-3xl font-bold text-slate-900">
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900">
               {Math.round(main.temp)}°
             </div>
-            <p className="text-sm text-slate-500 font-medium mt-1">
+            <p className="text-sm text-slate-500 font-medium mt-1 w-full sm:max-w-[18rem] truncate">
               {weather[0].description}
             </p>
           </div>
@@ -142,9 +151,13 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
             최고/최저
           </div>
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <span className="text-red-500">{Math.round(main.temp_max)}°</span>
+            <span className="text-red-500 text-sm sm:text-base">
+              {Math.round(main.temp_max)}°
+            </span>
             <span className="text-slate-300">·</span>
-            <span className="text-blue-500">{Math.round(main.temp_min)}°</span>
+            <span className="text-blue-500 text-sm sm:text-base">
+              {Math.round(main.temp_min)}°
+            </span>
           </div>
         </div>
       </div>

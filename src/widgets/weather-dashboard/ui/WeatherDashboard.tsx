@@ -99,8 +99,8 @@ export const WeatherDashboard = ({
     <div className="w-full max-w-175 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
       <Card className="overflow-hidden bg-linear-to-br from-(--primary-600) to-(--primary-500) border-0 shadow-2xl shadow-(color:--primary-500)/30">
         <div className="flex items-start justify-between mb-4">
-          <div className="text-left">
-            <h3 className="text-white text-2xl font-bold mb-1">
+          <div className="text-left w-full">
+            <h3 className="text-white text-2xl font-bold mb-1 w-full sm:max-w-[60%] truncate">
               {locationName || current.name}
             </h3>
             <p className="text-white/70 text-sm">
@@ -122,14 +122,14 @@ export const WeatherDashboard = ({
           <div className="flex items-center justify-center gap-4">
             {renderWeatherIcon(
               current.weather[0].icon,
-              "w-20 h-20 text-white",
+              "w-16 h-16 sm:w-20 sm:h-20 text-white",
               1.5
             )}
             <div>
-              <div className="text-6xl font-extrabold text-white">
+              <div className="text-4xl sm:text-6xl font-extrabold text-white">
                 {Math.round(current.main.temp)}°
               </div>
-              <div className="text-sm text-white/80 mt-1 capitalize">
+              <div className="text-sm text-white/80 mt-1 capitalize w-full sm:max-w-[18rem] truncate">
                 {current.weather[0].description}
               </div>
             </div>
@@ -137,7 +137,7 @@ export const WeatherDashboard = ({
           <div className="mt-3 text-white/70 text-sm" />
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
             <div className="flex items-center gap-2 mb-2">
               <Droplets className="w-4 h-4 text-white/80" />
@@ -145,7 +145,7 @@ export const WeatherDashboard = ({
                 체감온도
               </span>
             </div>
-            <div className="text-white text-2xl font-bold">
+            <div className="text-white text-xl sm:text-2xl font-bold">
               {Math.round(current.main.feels_like)}°
             </div>
           </div>
@@ -155,7 +155,7 @@ export const WeatherDashboard = ({
               <Droplets className="w-4 h-4 text-white/80" />
               <span className="text-white/80 text-xs font-semibold">습도</span>
             </div>
-            <div className="text-white text-2xl font-bold">
+            <div className="text-white text-xl sm:text-2xl font-bold">
               {current.main.humidity}%
             </div>
           </div>
@@ -165,7 +165,7 @@ export const WeatherDashboard = ({
               <Wind className="w-4 h-4 text-white/80" />
               <span className="text-white/80 text-xs font-semibold">풍속</span>
             </div>
-            <div className="text-white text-2xl font-bold">
+            <div className="text-white text-xl sm:text-2xl font-bold">
               {current.wind.speed}m/s
             </div>
           </div>
@@ -175,7 +175,7 @@ export const WeatherDashboard = ({
               <Gauge className="w-4 h-4 text-white/80" />
               <span className="text-white/80 text-xs font-semibold">기압</span>
             </div>
-            <div className="text-white text-2xl font-bold">
+            <div className="text-white text-xl sm:text-2xl font-bold">
               {current.main.pressure}
             </div>
           </div>
@@ -197,7 +197,7 @@ export const WeatherDashboard = ({
               <div
                 key={item.dt}
                 className={cn(
-                  "flex flex-col items-center gap-2 min-w-20 p-3 rounded-2xl transition-all duration-200",
+                  "flex flex-col items-center gap-2 min-w-16 p-2 sm:min-w-20 sm:p-3 rounded-2xl transition-all duration-200",
                   isNow
                     ? "bg-(--primary-50) border-2 border-(--primary-500)"
                     : "bg-white/50 hover:bg-white/60"
@@ -214,13 +214,13 @@ export const WeatherDashboard = ({
 
                 <div
                   className={cn(
-                    "w-12 h-12 flex items-center justify-center rounded-full",
+                    "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full",
                     isNow ? "bg-(--primary-500)/10" : "bg-white"
                   )}
                 >
                   <HourIcon
                     className={cn(
-                      "w-7 h-7",
+                      "w-6 h-6 sm:w-7 sm:h-7",
                       isNow ? "text-(--primary-500)" : "text-slate-700"
                     )}
                     strokeWidth={1.5}
