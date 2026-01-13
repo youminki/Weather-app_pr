@@ -281,3 +281,46 @@ export const getGeoLocation = async (
     return null;
   }
 };
+
+// 폴백: Nominatim(OpenStreetMap) API 사용
+const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+
+const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
+  try {
+    console.log("[Nominatim] Try query:", query);
+    const response = await axios.get(NOMINATIM_URL, {
+      params: {
+        q: query,
+        format: "jsonv2",
+        limit: 1,
+        addressdetails: 1,
+        "accept-language": "ko",
+      },
+    });
+
+    if (response.data && response.data.length > 0) {
+      const r = response.data[0];
+      return {
+        name: r.display_name || r.name || query,
+        lat: parseFloat(r.lat),
+        lon: parseFloat(r.lon),
+        country: r.address?.country_code?.toUpperCase() || "",
+        state: r.address?.state || r.address?.county || undefined,
+      };
+    }
+    return null;
+  } catch (e) {
+    console.error("Nominatim Geocoding Error:", e);
+    // 브라우저 환경에서는 CORS 또는 안전하지 않은 헤더 문제로 실패할 수 있습니다.
+    return null;
+  }
+};
+
+// 기존 getGeoLocation을 확장: Open-Meteo 실패시 Nominatim으로 폴백
+export const getGeoLocationWithFallback = async (
+  query: string
+): Promise<GeoLocation | null> => {
+  const primary = await getGeoLocation(query);
+  if (primary) return primary;
+  return await searchNominatim(query);
+};

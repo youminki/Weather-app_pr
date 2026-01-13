@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Loader2, MapPin } from "lucide-react";
-import { searchDistricts, District } from "@shared/api/location";
-import { getGeoLocation } from "@shared/api/weather";
+import {
+  searchDistricts,
+  District,
+  getCoordsForDistrict,
+} from "@shared/api/location";
+import { getGeoLocationWithFallback as getGeoLocation } from "@shared/api/weather";
 import { useDebounce } from "@shared/lib/useDebounce";
 import { cn } from "@shared/lib/utils";
 
@@ -65,15 +69,19 @@ export const LocationSearch = ({
     setLoading(true);
     const searchQuery = placeString.replace(/-/g, " ");
 
-    const coords = await getGeoLocation(searchQuery);
+    // 먼저 로컬 캐시/API 래퍼를 통해 좌표 조회
+    let coords = await getCoordsForDistrict(placeString);
+
+    // 실패하면 기존 geocoding API로 폴백
+    if (!coords) {
+      const geo = await getGeoLocation(searchQuery);
+      coords = geo ? { lat: geo.lat, lon: geo.lon } : null;
+    }
+
     setLoading(false);
 
     if (coords) {
-      onSelect({
-        name: placeString,
-        lat: coords.lat,
-        lon: coords.lon,
-      });
+      onSelect({ name: placeString, lat: coords.lat, lon: coords.lon });
       setQuery("");
       setIsOpen(false);
       setIsFocused(false);
