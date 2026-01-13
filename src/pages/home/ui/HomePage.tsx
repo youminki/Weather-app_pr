@@ -44,13 +44,16 @@ export const HomePage = () => {
   }, [location, latParam, lonParam, setSearchParams]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 pb-20 overflow-x-hidden transition-colors duration-500">
-      <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
-        <header className="w-full flex flex-col items-center gap-6 mt-12 z-10">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-            SkyCast
-          </h1>
-          <LocationSearch onSelect={onSelectLocation} className="shadow-lg" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 overflow-x-hidden">
+      <div className="max-w-5xl mx-auto flex flex-col items-center gap-6 px-4">
+        <header className="w-full flex flex-col items-center gap-6 pt-12 pb-2">
+          <div className="text-center space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+              날씨
+            </h1>
+            <p className="text-sm text-slate-500">오늘의 날씨를 확인하세요</p>
+          </div>
+          <LocationSearch onSelect={onSelectLocation} />
         </header>
 
         <main className="w-full flex flex-col items-center min-h-[500px] gap-8">

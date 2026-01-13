@@ -31,11 +31,11 @@ export const FavoriteButton = ({ location }: FavoriteButtonProps) => {
       onClick={toggleFavorite}
       className={
         isFavorite
-          ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
-          : "text-slate-300 hover:text-slate-500"
+          ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50/80 hover:scale-110 transition-all duration-200"
+          : "text-slate-300 hover:text-slate-500 hover:bg-slate-50/80 hover:scale-110 transition-all duration-200"
       }
     >
-      <Star className={isFavorite ? "fill-current" : ""} />
+      <Star className={isFavorite ? "fill-current w-6 h-6" : "w-6 h-6"} />
     </Button>
   );
 };

@@ -4,6 +4,18 @@ import { FavoriteButton } from "@features/manage-favorites/ui/FavoriteButton";
 import { Card } from "@shared/ui/Card";
 import { cn } from "@shared/lib/utils";
 import { WeeklyForecast } from "./WeeklyForecast";
+import React from "react";
+import { 
+  Droplets, 
+  Wind, 
+  Gauge,
+  Sun,
+  Moon,
+  Cloud,
+  CloudRain,
+  CloudSnow,
+  CloudDrizzle
+} from "lucide-react";
 
 interface WeatherDashboardProps {
   lat: number;
@@ -43,148 +55,165 @@ export const WeatherDashboard = ({
       </div>
     );
 
+  const getWeatherIcon = (iconCode: string) => {
+    const code = iconCode.slice(0, 2);
+    const isDay = iconCode.includes('d');
+    
+    switch(code) {
+      case '01': return isDay ? Sun : Moon;
+      case '02': return Cloud;
+      case '03': case '04': return Cloud;
+      case '09': return CloudDrizzle;
+      case '10': return CloudRain;
+      case '11': return CloudRain;
+      case '13': return CloudSnow;
+      default: return Cloud;
+    }
+  };
+
+  const renderWeatherIcon = (iconCode: string, className: string, strokeWidth: number) => {
+    const IconComponent = getWeatherIcon(iconCode);
+    return React.createElement(IconComponent, { className, strokeWidth });
+  };
+
   return (
-    <div className="w-full max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Main Weather White Card */}
-      <Card className="flex flex-col items-center p-8 bg-white border border-slate-100 shadow-sm rounded-[2.5rem]">
-        {/* Header: Name and Favorite */}
-        <div className="w-full flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-slate-900">
-            {locationName || current.name}
-          </h2>
+    <div className="w-full max-w-5xl space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* 메인 날씨 카드 */}
+      <Card className="overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 border-0 shadow-2xl shadow-blue-500/30">
+        {/* 헤더 */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-white text-2xl font-bold mb-1">
+              {locationName || current.name}
+            </h2>
+            <p className="text-blue-100 text-sm font-medium">
+              {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+            </p>
+          </div>
           <FavoriteButton
             location={{ lat, lon, name: locationName || current.name }}
           />
         </div>
 
-        {/* Tab-like Visuals (Static for now) */}
-        <div className="flex w-full justify-start gap-4 mb-10 border-b border-slate-100 pb-2">
-          <button className="text-slate-900 font-semibold border-b-2 border-slate-900 pb-2 -mb-2.5 px-1">
-            날씨
-          </button>
-          <button className="text-slate-400 font-medium hover:text-slate-600 pb-2 transition-colors px-1">
-            강수
-          </button>
-          <button className="text-slate-400 font-medium hover:text-slate-600 pb-2 transition-colors px-1">
-            바람
-          </button>
-          <button className="text-slate-400 font-medium hover:text-slate-600 pb-2 transition-colors px-1">
-            습도
-          </button>
-        </div>
-
-        {/* Hourly Forecast Strip (Graph-like visual) */}
-        <div className="w-full mb-12 relative">
-          {/* Simple Line Graph Simulation (Background) */}
-          <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-slate-100 -z-10 rounded-full" />
-
-          <div className="flex justify-between overflow-x-auto pb-4 scrollbar-hide px-2 gap-4">
-            {forecast.list.slice(0, 8).map((item) => (
-              <div
-                key={item.dt}
-                className="flex flex-col items-center gap-3 min-w-[3.5rem] bg-white z-10"
-              >
-                <span className="text-sm font-bold text-slate-800">
-                  {Math.round(item.main.temp)}°
-                </span>
-                {/* Connecting Dot */}
-                <div className="w-3 h-3 rounded-full bg-slate-200 border-2 border-white mb-1" />
-
-                <span className="text-2xl mb-1">
-                  {item.weather[0].icon.includes("d") ? "☀️" : "🌙"}
-                </span>
-                <span className="text-xs text-slate-400 font-medium">
-                  {new Date(item.dt * 1000).getHours()}시
-                </span>
+        {/* 현재 날씨 메인 */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-6">
+            {renderWeatherIcon(current.weather[0].icon, "w-24 h-24 text-white", 1.5)}
+            <div>
+              <div className="text-7xl font-bold text-white mb-2">
+                {Math.round(current.main.temp)}°
               </div>
-            ))}
+              <p className="text-blue-100 text-lg font-medium capitalize">
+                {current.weather[0].description}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Selected Hour Detail (Main View) */}
-        <div className="flex flex-col items-center gap-2 mb-10 w-full py-8 bg-slate-50/50 rounded-3xl">
-          <div className="relative">
-            <span className="text-6xl filter drop-shadow-sm">
-              {current.weather[0].icon.includes("d") ? "☀️" : "🌙"}
-            </span>
-            <span className="absolute -top-2 -right-12 text-5xl font-bold text-slate-900">
-              {Math.round(current.main.temp)}°
-            </span>
+        {/* 상세 정보 그리드 */}
+        <div className="grid grid-cols-4 gap-3">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Droplets className="w-4 h-4 text-blue-200" />
+              <span className="text-blue-100 text-xs font-semibold">체감온도</span>
+            </div>
+            <div className="text-white text-2xl font-bold">
+              {Math.round(current.main.feels_like)}°
+            </div>
           </div>
-
-          <div className="flex items-center gap-1 text-slate-500 mt-2">
-            <span className="text-slate-900 font-medium">어제보다 2.6° ↓</span>
-            <span className="text-slate-300 mx-1">/</span>
-            <span className="font-medium text-slate-900">
-              {current.weather[0].description}
-            </span>
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Droplets className="w-4 h-4 text-blue-200" />
+              <span className="text-blue-100 text-xs font-semibold">습도</span>
+            </div>
+            <div className="text-white text-2xl font-bold">
+              {current.main.humidity}%
+            </div>
           </div>
-          <div className="flex items-center gap-3 text-sm text-slate-500 mt-2">
-            <span>체감 {Math.round(current.main.feels_like)}°</span>
-            <span className="w-1 h-1 bg-slate-300 rounded-full" />
-            <span>습도 {current.main.humidity}%</span>
-            <span className="w-1 h-1 bg-slate-300 rounded-full" />
-            <span>{current.wind.speed}m/s</span>
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Wind className="w-4 h-4 text-blue-200" />
+              <span className="text-blue-100 text-xs font-semibold">풍속</span>
+            </div>
+            <div className="text-white text-2xl font-bold">
+              {current.wind.speed}m/s
+            </div>
           </div>
-        </div>
-
-        {/* Details Grid (Pills) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-          <DetailPill
-            label="미세먼지"
-            value="좋음"
-            color="bg-blue-50 text-blue-600"
-          />
-          <DetailPill
-            label="초미세먼지"
-            value="좋음"
-            color="bg-blue-50 text-blue-600"
-          />
-          <DetailPill
-            label="자외선"
-            value="좋음"
-            color="bg-blue-50 text-blue-600"
-          />
-          <DetailPill
-            label="일몰"
-            value="17:36"
-            color="bg-orange-50 text-orange-600"
-          />
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Gauge className="w-4 h-4 text-blue-200" />
+              <span className="text-blue-100 text-xs font-semibold">기압</span>
+            </div>
+            <div className="text-white text-2xl font-bold">
+              {current.main.pressure}
+            </div>
+          </div>
         </div>
       </Card>
 
-      {/* Weekly Forecast Section */}
-      <WeeklyForecast daily={forecast.daily} />
+      {/* 시간별 예보 카드 */}
+      <Card className="bg-white/90 border border-slate-200/50 shadow-lg">
+        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <Sun className="w-5 h-5 text-orange-500" />
+          시간별 예보
+        </h3>
 
-      {/* Additional Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <button className="h-16 flex items-center justify-center bg-white border border-slate-200 rounded-2xl shadow-sm text-slate-600 hover:bg-slate-50 font-medium gap-2 transition-all">
-          <span>📹 CCTV</span>
-        </button>
-        <button className="h-16 flex items-center justify-center bg-white border border-slate-200 rounded-2xl shadow-sm text-slate-600 hover:bg-slate-50 font-medium gap-2 transition-all">
-          <span>🗺️ 날씨 지도</span>
-        </button>
-      </div>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+          {forecast.list.slice(0, 12).map((item) => {
+            const HourIcon = getWeatherIcon(item.weather[0].icon);
+            const hour = new Date(item.dt * 1000).getHours();
+            const isNow = hour === new Date().getHours();
+            
+            return (
+              <div
+                key={item.dt}
+                className={cn(
+                  "flex flex-col items-center gap-3 min-w-[80px] p-4 rounded-2xl transition-all duration-200",
+                  isNow 
+                    ? "bg-blue-50 border-2 border-blue-500" 
+                    : "bg-slate-50/50 hover:bg-slate-100/80"
+                )}
+              >
+                <span className={cn(
+                  "text-sm font-bold",
+                  isNow ? "text-blue-600" : "text-slate-500"
+                )}>
+                  {isNow ? '지금' : `${hour}시`}
+                </span>
+                
+                <HourIcon 
+                  className={cn(
+                    "w-8 h-8",
+                    isNow ? "text-blue-500" : "text-slate-700"
+                  )} 
+                  strokeWidth={1.5}
+                />
+                
+                {item.pop && item.pop > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Droplets className="w-3 h-3 text-blue-400" />
+                    <span className="text-xs font-semibold text-blue-600">
+                      {Math.round(item.pop * 100)}%
+                    </span>
+                  </div>
+                )}
+                
+                <span className="text-lg font-bold text-slate-900">
+                  {Math.round(item.main.temp)}°
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* 주간 예보 */}
+      <WeeklyForecast daily={forecast.daily} />
     </div>
   );
 };
 
-const DetailPill = ({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: string;
-  color: string;
-}) => (
-  <div
-    className={cn(
-      "flex flex-col items-center justify-center py-4 rounded-xl gap-1 transition-colors",
-      color
-    )}
-  >
-    <span className="text-xs opacity-70 font-semibold">{label}</span>
-    <span className="text-lg font-bold">{value}</span>
-  </div>
-);
+

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, Loader2 } from "lucide-react";
-import { Input } from "@shared/ui/Input";
+import { Search, Loader2, MapPin } from "lucide-react";
 import { searchDistricts, District } from "@shared/api/location";
 import { getGeoLocation } from "@shared/api/weather";
 import { useDebounce } from "@shared/lib/useDebounce";
@@ -19,7 +18,9 @@ export const LocationSearch = ({
   const [results, setResults] = useState<District[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedQuery = useDebounce(query, 300);
 
@@ -53,6 +54,7 @@ export const LocationSearch = ({
         !wrapperRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setIsFocused(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -74,6 +76,8 @@ export const LocationSearch = ({
       });
       setQuery("");
       setIsOpen(false);
+      setIsFocused(false);
+      inputRef.current?.blur();
     } else {
       alert("위치 정보를 찾을 수 없습니다.");
     }
@@ -81,42 +85,96 @@ export const LocationSearch = ({
 
   return (
     <div
-      className={cn("relative w-full max-w-md z-50", className)}
+      className={cn("relative w-full max-w-2xl", className)}
       ref={wrapperRef}
     >
-      <div className="relative group">
-        <Input
-          placeholder="지역 검색 (예: 종로구, 강남구)"
+      {/* iOS 스타일 검색바 */}
+      <div
+        className={cn(
+          "relative flex items-center transition-all duration-200",
+          "bg-white rounded-2xl",
+          "border",
+          isFocused
+            ? "border-blue-500 shadow-lg shadow-blue-500/20"
+            : "border-slate-200 shadow-sm"
+        )}
+      >
+        {/* 검색 아이콘 */}
+        <div className="absolute left-4 flex items-center pointer-events-none">
+          {loading ? (
+            <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
+          ) : (
+            <Search
+              className={cn(
+                "w-5 h-5 transition-colors duration-200",
+                isFocused ? "text-blue-500" : "text-slate-400"
+              )}
+            />
+          )}
+        </div>
+
+        {/* 검색 입력 */}
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="지역을 검색하세요"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-11 bg-white border-slate-200 focus:bg-white focus:border-slate-300 transition-all duration-300 shadow-sm text-lg h-14 rounded-[2rem]"
+          onFocus={() => setIsFocused(true)}
+          className={cn(
+            "w-full h-12 pl-12 pr-4",
+            "bg-transparent outline-none",
+            "text-[15px] text-slate-900 placeholder:text-slate-400",
+            "transition-all duration-200"
+          )}
         />
-        {loading ? (
-          <Loader2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 animate-spin" />
-        ) : (
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-slate-600 transition-colors" />
-        )}
       </div>
 
+      {/* 검색 결과 드롭다운 */}
       {isOpen && results.length > 0 && (
-        <ul className="absolute w-full mt-2 bg-white border border-slate-100 rounded-3xl shadow-xl overflow-hidden max-h-[60vh] overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-200">
-          {results.map((place, idx) => (
-            <li
-              key={`${place}-${idx}`}
-              className="px-6 py-4 hover:bg-slate-50 cursor-pointer text-slate-700 transition-colors border-b border-slate-50 last:border-0 flex items-center justify-between group"
-              onClick={() => handleSelect(place)}
-            >
-              <div className="font-medium text-slate-900 break-keep group-hover:translate-x-1 transition-transform">
-                {place.replace(/-/g, " ")}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div
+          className={cn(
+            "absolute w-full mt-2 z-50",
+            "bg-white rounded-2xl",
+            "border border-slate-200 shadow-xl",
+            "overflow-hidden",
+            "animate-in fade-in slide-in-from-top-2 duration-200"
+          )}
+        >
+          <ul className="max-h-[60vh] overflow-y-auto">
+            {results.map((place, idx) => (
+              <li
+                key={`${place}-${idx}`}
+                onClick={() => handleSelect(place)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3",
+                  "cursor-pointer transition-colors duration-150",
+                  "hover:bg-slate-50 active:bg-slate-100",
+                  "border-b border-slate-100 last:border-0"
+                )}
+              >
+                <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <span className="text-[15px] text-slate-900">
+                  {place.replace(/-/g, " ")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
+      {/* 검색 결과 없음 */}
       {isOpen && query.length > 1 && results.length === 0 && !loading && (
-        <div className="absolute w-full mt-2 bg-white border border-slate-100 rounded-3xl shadow-lg p-6 text-center text-slate-500 animate-in fade-in zoom-in-95">
-          검색 결과가 없습니다.
+        <div
+          className={cn(
+            "absolute w-full mt-2 z-50",
+            "bg-white rounded-2xl",
+            "border border-slate-200 shadow-xl",
+            "p-6 text-center",
+            "animate-in fade-in slide-in-from-top-2 duration-200"
+          )}
+        >
+          <p className="text-[15px] text-slate-500">검색 결과가 없습니다.</p>
         </div>
       )}
     </div>

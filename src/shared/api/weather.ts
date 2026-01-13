@@ -27,6 +27,14 @@ export interface WeatherData {
     speed: number;
     deg: number;
   };
+  clouds: {
+    all: number;
+  };
+  visibility: number;
+  sys: {
+    sunrise: number;
+    sunset: number;
+  };
   dt: number;
   tzone_offset: number;
   name: string;
@@ -51,6 +59,7 @@ export interface ForecastData {
     dt: number;
     main: { temp: number; temp_min: number; temp_max: number };
     weather: { id: number; main: string; icon: string }[];
+    pop?: number;
   }[];
   daily: DailyForecast[];
   city: { name: string; coord: { lat: number; lon: number } };
