@@ -94,7 +94,6 @@ export const LocationSearch = ({
       className={cn("relative w-full max-w-2xl", className)}
       ref={wrapperRef}
     >
-      
       <div
         className={cn(
           "relative flex items-center transition-all duration-200",
@@ -105,7 +104,6 @@ export const LocationSearch = ({
             : "border-slate-200 shadow-sm"
         )}
       >
-        
         <div className="absolute left-4 flex items-center pointer-events-none">
           {loading ? (
             <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
@@ -119,7 +117,6 @@ export const LocationSearch = ({
           )}
         </div>
 
-        
         <input
           ref={inputRef}
           type="text"
@@ -136,7 +133,6 @@ export const LocationSearch = ({
         />
       </div>
 
-      
       {isOpen && results.length > 0 && (
         <div
           className={cn(
@@ -169,7 +165,6 @@ export const LocationSearch = ({
         </div>
       )}
 
-      
       {isOpen && query.length > 1 && results.length === 0 && !loading && (
         <div
           className={cn(

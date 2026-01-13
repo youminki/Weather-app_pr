@@ -90,7 +90,7 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
           return (
             <div
               key={`${item.dt}-${index}`}
-              className="flex items-center justify-between p-2 bg-slate-50/60 rounded-2xl"
+              className="flex items-center justify-between p-2 bg-gray-100 rounded-2xl"
             >
               <div className="flex flex-col">
                 <div className="text-sm font-semibold">

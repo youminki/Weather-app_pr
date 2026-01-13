@@ -1,4 +1,4 @@
 declare module "@shared/assets/*" {
-  const value: any;
+  const value: unknown;
   export default value;
 }

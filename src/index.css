@@ -22,8 +22,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
- 
-
 .btn-primary {
   background-color: var(--primary-500);
   color: white;

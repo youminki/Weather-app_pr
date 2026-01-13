@@ -1,9 +1,9 @@
 import axios from "axios";
 import koreaDistricts from "@shared/assets/korea_districts.json";
 
-let koreaDistrictsIndex: Record<string, string[]> = {};
+const koreaDistrictsIndex: Record<string, string[]> = {};
 
-let localDistrictCoords: Record<
+const localDistrictCoords: Record<
   string,
   { lat: number; lon: number; name?: string }
 > = {};
@@ -25,7 +25,6 @@ export const searchDistricts = async (query: string): Promise<District[]> => {
   if (!query || query.length < 1) return [];
   const q = query.toLowerCase().trim();
 
-  
   if (koreaDistrictsIndex && Object.keys(koreaDistrictsIndex).length > 0) {
     const tokens = q.replace(/[-,]/g, " ").split(/\s+/).filter(Boolean);
     if (tokens.length === 0) return [];
@@ -170,7 +169,6 @@ export const getCoordsForDistrict = async (
 ): Promise<{ lat: number; lon: number } | null> => {
   if (!district) return null;
 
-  
   if (localDistrictCoords && localDistrictCoords[district]) {
     const v = localDistrictCoords[district];
     return { lat: v.lat, lon: v.lon };
@@ -181,7 +179,6 @@ export const getCoordsForDistrict = async (
     return { lat: cached.latitude, lon: cached.longitude };
   }
 
-  
   const candidates = new Set<string>();
   candidates.add(district);
   candidates.add(district.replace(/-/g, " "));
@@ -221,24 +218,20 @@ export const searchLocations = async (query: string): Promise<Location[]> => {
 
   console.log("[Search] Starting search for:", query);
 
-  
   const hasKorean = /[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/.test(query);
 
   let results: Location[] = [];
 
   if (hasKorean) {
-    
     results = await searchKoreaDistrictsWithGeocoding(query);
     if (results.length === 0) {
       const apiResults = await searchGeocodingApi(query);
       results = apiResults;
     }
   } else {
-    
     results = await searchGeocodingApi(query);
   }
 
-  
   const uniqueResults = results.filter(
     (item, index, self) =>
       index ===

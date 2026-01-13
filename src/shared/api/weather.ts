@@ -191,7 +191,6 @@ export const weatherApi = {
       const hourly = response.data.hourly;
       const daily = response.data.daily;
 
-      
       const list = hourly.time.map((time: string, index: number) => {
         const weatherInfo = mapWmoCodeToWeather(
           hourly.weather_code[index],
@@ -218,7 +217,6 @@ export const weatherApi = {
         .filter((item: { dt: number }) => item.dt > Date.now() / 1000)
         .slice(0, 24);
 
-      
       const dailyList = daily.time.map((time: string, index: number) => {
         const weatherInfo = mapWmoCodeToWeather(daily.weather_code[index]);
         return {
@@ -248,6 +246,69 @@ export const weatherApi = {
     } catch (error) {
       console.error("Open-Meteo Forecast Error:", error);
       throw error;
+    }
+  },
+  // Fetch environmental data: sunrise/sunset, uv index (daily), and recent pm values (hourly)
+  getEnvironmental: async (
+    lat: number,
+    lon: number
+  ): Promise<{
+    sunrise?: number;
+    sunset?: number;
+    uvIndex?: number | null;
+    pm10?: number | null;
+    pm2_5?: number | null;
+  }> => {
+    try {
+      const response = await axios.get(WEATHER_API_URL, {
+        params: {
+          latitude: lat,
+          longitude: lon,
+          daily: "sunrise,sunset,uv_index_max",
+          hourly: "pm10,pm2_5",
+          timezone: "auto",
+          // request air-quality style hourly data where available
+        },
+      });
+
+      const daily = response.data.daily || {};
+      const hourly = response.data.hourly || {};
+
+      const nowTs = Date.now() / 1000;
+
+      // take today's sunrise/sunset and uv index (first elements)
+      const sunrise =
+        daily.sunrise && daily.sunrise.length > 0
+          ? new Date(daily.sunrise[0]).getTime() / 1000
+          : undefined;
+      const sunset =
+        daily.sunset && daily.sunset.length > 0
+          ? new Date(daily.sunset[0]).getTime() / 1000
+          : undefined;
+      const uvIndex =
+        daily.uv_index_max && daily.uv_index_max.length > 0
+          ? daily.uv_index_max[0]
+          : null;
+
+      // for pm values, find the hourly value closest to now
+      let pm10: number | null = null;
+      let pm2_5: number | null = null;
+      if (hourly.time && Array.isArray(hourly.time)) {
+        // find index of closest future/present hour
+        const idx = hourly.time.findIndex(
+          (t: string) => new Date(t).getTime() / 1000 >= nowTs
+        );
+        const useIdx = idx >= 0 ? idx : 0;
+        if (hourly.pm10 && hourly.pm10.length > useIdx)
+          pm10 = hourly.pm10[useIdx];
+        if (hourly.pm2_5 && hourly.pm2_5.length > useIdx)
+          pm2_5 = hourly.pm2_5[useIdx];
+      }
+
+      return { sunrise, sunset, uvIndex, pm10, pm2_5 };
+    } catch (error) {
+      console.error("Open-Meteo Environmental Error:", error);
+      return { uvIndex: null, pm10: null, pm2_5: null };
     }
   },
 };
@@ -282,7 +343,6 @@ export const getGeoLocation = async (
   }
 };
 
- 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 
 const searchNominatim = async (query: string): Promise<GeoLocation | null> => {

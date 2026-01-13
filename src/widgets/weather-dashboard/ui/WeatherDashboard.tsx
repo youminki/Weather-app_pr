@@ -137,21 +137,6 @@ export const WeatherDashboard = ({
           <div className="mt-3 text-white/70 text-sm" />
         </div>
 
-        <div className="w-full flex flex-wrap gap-3 justify-start mb-4">
-          <div className="px-3 py-2 bg-white/10 text-white rounded-full text-sm">
-            미세먼지 좋음
-          </div>
-          <div className="px-3 py-2 bg-white/10 text-white rounded-full text-sm">
-            초미세먼지 좋음
-          </div>
-          <div className="px-3 py-2 bg-white/10 text-white rounded-full text-sm">
-            자외선 좋음
-          </div>
-          <div className="px-3 py-2 bg-white/10 text-white rounded-full text-sm">
-            일출 07:46
-          </div>
-        </div>
-
         <div className="grid grid-cols-4 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
             <div className="flex items-center gap-2 mb-2">

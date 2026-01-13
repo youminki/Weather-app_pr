@@ -10,7 +10,6 @@ export const WeatherCard = ({ data }: WeatherCardProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-      
       <Card className="flex flex-col items-center justify-center p-8 text-center md:col-span-2 bg-gradient-to-br from-[color:var(--primary-600)] to-[color:var(--primary-500)] text-white">
         <div className="text-6xl mb-2">
           {weather[0].icon === "01d" ? "☀️" : "☁️"}
