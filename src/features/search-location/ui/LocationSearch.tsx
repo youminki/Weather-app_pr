@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Loader2, MapPin } from "lucide-react";
+import { useFavorites } from "@shared/lib/useFavorites";
 import {
   searchDistricts,
   District,
@@ -27,6 +28,7 @@ export const LocationSearch = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedQuery = useDebounce(query, 100);
+  const { favorites } = useFavorites();
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -123,7 +125,10 @@ export const LocationSearch = ({
           placeholder="지역을 검색하세요"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            setIsOpen(true);
+          }}
           className={cn(
             "w-full h-12 pl-12 pr-4",
             "bg-transparent outline-none",
@@ -133,7 +138,7 @@ export const LocationSearch = ({
         />
       </div>
 
-      {isOpen && results.length > 0 && (
+      {isOpen && query.length === 0 ? (
         <div
           className={cn(
             "absolute w-full mt-2 z-50",
@@ -144,25 +149,66 @@ export const LocationSearch = ({
           )}
         >
           <ul className="max-h-[60vh] overflow-y-auto">
-            {results.map((place, idx) => (
-              <li
-                key={`${place}-${idx}`}
-                onClick={() => handleSelect(place)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3",
-                  "cursor-pointer transition-colors duration-150",
-                  "hover:bg-slate-50 active:bg-slate-100",
-                  "border-b border-slate-100 last:border-0"
-                )}
-              >
-                <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                <span className="text-[15px] text-slate-900">
-                  {place.replace(/-/g, " ")}
-                </span>
-              </li>
-            ))}
+            {favorites.length === 0 ? (
+              <li className="px-4 py-3 text-slate-500">즐겨찾기가 없습니다.</li>
+            ) : (
+              favorites.map((fav) => (
+                <li
+                  key={fav.id}
+                  onClick={() => {
+                    onSelect({ name: fav.name, lat: fav.lat, lon: fav.lon });
+                    setQuery("");
+                    setIsOpen(false);
+                    setIsFocused(false);
+                    inputRef.current?.blur();
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3",
+                    "cursor-pointer transition-colors duration-150",
+                    "hover:bg-slate-50 active:bg-slate-100",
+                    "border-b border-slate-100 last:border-0"
+                  )}
+                >
+                  <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  <span className="text-[15px] text-slate-900">{fav.name}</span>
+                </li>
+              ))
+            )}
           </ul>
         </div>
+      ) : (
+        isOpen &&
+        results.length > 0 && (
+          <div
+            className={cn(
+              "absolute w-full mt-2 z-50",
+              "bg-white rounded-2xl",
+              "border border-slate-200 shadow-xl",
+              "overflow-hidden",
+              "animate-in fade-in slide-in-from-top-2 duration-200"
+            )}
+          >
+            <ul className="max-h-[60vh] overflow-y-auto">
+              {results.map((place, idx) => (
+                <li
+                  key={`${place}-${idx}`}
+                  onClick={() => handleSelect(place)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3",
+                    "cursor-pointer transition-colors duration-150",
+                    "hover:bg-slate-50 active:bg-slate-100",
+                    "border-b border-slate-100 last:border-0"
+                  )}
+                >
+                  <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  <span className="text-[15px] text-slate-900">
+                    {place.replace(/-/g, " ")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
       )}
 
       {isOpen && query.length > 1 && results.length === 0 && !loading && (

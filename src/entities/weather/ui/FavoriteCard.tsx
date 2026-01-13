@@ -13,7 +13,7 @@ interface FavoriteCardProps {
 
 export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
   const navigate = useNavigate();
-  const { updateAlias } = useFavorites();
+  const { updateAlias, removeFavorite } = useFavorites();
   const [isEditing, setIsEditing] = useState(false);
   const [alias, setAlias] = useState(favorite.alias || "");
 
@@ -106,6 +106,19 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
               onClick={handleEditClick}
             >
               <Pencil className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-red-400 hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm(`즐겨찾기 '${favorite.alias || favorite.name}'을(를) 삭제하시겠습니까?`)) {
+                  removeFavorite(favorite.id);
+                }
+              }}
+            >
+              <X className="h-3 w-3" />
             </Button>
           </div>
         </div>
