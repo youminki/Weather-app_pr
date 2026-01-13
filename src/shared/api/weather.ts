@@ -51,7 +51,7 @@ export interface DailyForecast {
     main: string;
     icon: string;
   }[];
-  pop: number; // Probability of precipitation
+  pop: number;
 }
 
 export interface ForecastData {
@@ -191,7 +191,7 @@ export const weatherApi = {
       const hourly = response.data.hourly;
       const daily = response.data.daily;
 
-      // Process Hourly
+      
       const list = hourly.time.map((time: string, index: number) => {
         const weatherInfo = mapWmoCodeToWeather(
           hourly.weather_code[index],
@@ -218,7 +218,7 @@ export const weatherApi = {
         .filter((item: { dt: number }) => item.dt > Date.now() / 1000)
         .slice(0, 24);
 
-      // Process Daily
+      
       const dailyList = daily.time.map((time: string, index: number) => {
         const weatherInfo = mapWmoCodeToWeather(daily.weather_code[index]);
         return {
@@ -282,7 +282,7 @@ export const getGeoLocation = async (
   }
 };
 
-// 폴백: Nominatim(OpenStreetMap) API 사용
+ 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 
 const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
@@ -311,12 +311,10 @@ const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
     return null;
   } catch (e) {
     console.error("Nominatim Geocoding Error:", e);
-    // 브라우저 환경에서는 CORS 또는 안전하지 않은 헤더 문제로 실패할 수 있습니다.
     return null;
   }
 };
 
-// 기존 getGeoLocation을 확장: Open-Meteo 실패시 Nominatim으로 폴백
 export const getGeoLocationWithFallback = async (
   query: string
 ): Promise<GeoLocation | null> => {

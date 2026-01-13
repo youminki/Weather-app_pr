@@ -7,22 +7,16 @@ interface WeatherCardProps {
 
 export const WeatherCard = ({ data }: WeatherCardProps) => {
   const { main, weather } = data;
-  // Wait, I strictly defined WeatherData interface in weather.ts. It didn't have wind.
-  // I should update interface or just not use wind for now.
-  // Interface has: coord, weather[], base, main, dt, tzone_offset, name.
-  // Let's stick to what I have in interface for now.
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-      {/* Main Temp */}
-      <Card className="flex flex-col items-center justify-center p-8 text-center md:col-span-2 bg-linear-to-br from-blue-500/20 to-purple-500/20">
+      
+      <Card className="flex flex-col items-center justify-center p-8 text-center md:col-span-2 bg-gradient-to-br from-[color:var(--primary-600)] to-[color:var(--primary-500)] text-white">
         <div className="text-6xl mb-2">
           {weather[0].icon === "01d" ? "☀️" : "☁️"}
         </div>
-        <h2 className="text-6xl font-bold text-white mb-2">
-          {Math.round(main.temp)}°
-        </h2>
-        <p className="text-2xl text-blue-200 capitalize">
+        <h2 className="text-6xl font-bold mb-2">{Math.round(main.temp)}°</h2>
+        <p className="text-2xl text-white/80 capitalize">
           {weather[0].description}
         </p>
         <div className="flex gap-4 mt-4 text-white/60">

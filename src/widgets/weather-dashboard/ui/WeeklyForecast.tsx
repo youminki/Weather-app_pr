@@ -17,6 +17,11 @@ interface WeeklyForecastProps {
 }
 
 export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
+  const formatPop = (pop: number) => {
+    if (pop == null) return "";
+    const value = pop > 1 ? Math.round(pop) : Math.round(pop * 100);
+    return `${value}%`;
+  };
   const formatDay = (dt: number, index: number) => {
     const date = new Date(dt * 1000);
     const day = date.getDate();
@@ -51,70 +56,85 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
     }
   };
 
+  const uniqueDaily: DailyForecast[] = (() => {
+    const seen = new Set<string>();
+    const out: DailyForecast[] = [];
+    for (const d of daily) {
+      const dateStr = new Date(d.dt * 1000).toISOString().slice(0, 10);
+      if (!seen.has(dateStr)) {
+        seen.add(dateStr);
+        out.push(d);
+      }
+      if (out.length >= 10) break;
+    }
+    return out;
+  })();
+
   return (
-    <Card className="bg-white/90 border border-slate-200/50 shadow-lg">
+    <Card className="w-full bg-white/90 border border-slate-200/50 shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-bold text-slate-900">주간 예보</h3>
         <span className="text-sm text-slate-500 font-medium">7일간</span>
       </div>
-      <div className="space-y-3">
-        {daily.map((item, index) => {
+
+      <div className="grid grid-cols-2 gap-2">
+        {uniqueDaily.map((item, index) => {
           const { dayName, fullDate } = formatDay(item.dt, index);
           const date = new Date(item.dt * 1000);
           const dayOfWeek = date.getDay();
           const isSunday = dayOfWeek === 0;
           const isSaturday = dayOfWeek === 6;
 
+          const Icon = getWeatherIcon(item.weather[0].icon);
+
           return (
             <div
-              key={item.dt}
-              className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl hover:bg-slate-100/80 transition-all duration-200"
+              key={`${item.dt}-${index}`}
+              className="flex items-center justify-between p-2 bg-slate-50/60 rounded-2xl"
             >
-              {/* 요일 */}
-              <div className="w-20">
-                <span
-                  className={cn(
-                    "text-base font-bold",
-                    isSunday
-                      ? "text-red-500"
-                      : isSaturday
-                      ? "text-blue-500"
-                      : "text-slate-900"
-                  )}
-                >
-                  {dayName}
-                </span>
-                <p className="text-xs text-slate-400 font-medium mt-0.5">
-                  {fullDate}
-                </p>
+              <div className="flex flex-col">
+                <div className="text-sm font-semibold">
+                  <span
+                    className={cn(
+                      isSunday
+                        ? "text-red-500"
+                        : isSaturday
+                        ? "text-blue-500"
+                        : "text-slate-800"
+                    )}
+                  >
+                    {index === 0 ? "오늘" : index === 1 ? "내일" : dayName}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400">{fullDate}</div>
               </div>
-
-              {/* 아이콘과 강수확률 */}
-              <div className="flex items-center gap-3 flex-1 justify-center">
-                {React.createElement(getWeatherIcon(item.weather[0].icon), {
-                  className: "w-8 h-8 text-slate-700",
-                  strokeWidth: 1.5,
-                })}
-
-                {item.pop > 0 && (
-                  <div className="flex items-center gap-1">
-                    <Droplets className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-sm font-bold text-blue-600">
-                      {Math.round(item.pop * 100)}%
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 flex items-center justify-center bg-white rounded-full shadow-sm">
+                  {React.createElement(Icon, {
+                    className: "w-5 h-5 text-slate-700",
+                    strokeWidth: 1.5,
+                  })}
+                </div>
+              </div>
+              <div className="ml-3 text-right">
+                {item.pop > 0 ? (
+                  <div className="flex items-center gap-1 justify-end">
+                    <Droplets className="w-3 h-3 text-blue-400" />
+                    <span className="text-md font-semibold text-blue-600">
+                      {formatPop(item.pop)}
                     </span>
                   </div>
+                ) : (
+                  <div className="text-m text-slate-400">0%</div>
                 )}
               </div>
-
-              {/* 온도 범위 */}
-              <div className="flex items-center gap-3">
-                <span className="text-slate-500 text-sm font-medium w-12 text-right">
+              <div className="flex items-center gap-2">
+                <div className="text-md text-blue-500">
                   {Math.round(item.temp.min)}°
-                </span>
-                <div className="w-24 h-2 bg-gradient-to-r from-blue-400 via-yellow-400 to-red-400 rounded-full" />
-                <span className="text-slate-900 text-sm font-bold w-12">
+                </div>
+                <div className="text-md font-bold text-red-500">
                   {Math.round(item.temp.max)}°
-                </span>
+                </div>
               </div>
             </div>
           );

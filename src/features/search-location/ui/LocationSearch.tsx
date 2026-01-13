@@ -26,7 +26,7 @@ export const LocationSearch = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 100);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -69,10 +69,8 @@ export const LocationSearch = ({
     setLoading(true);
     const searchQuery = placeString.replace(/-/g, " ");
 
-    // 먼저 로컬 캐시/API 래퍼를 통해 좌표 조회
     let coords = await getCoordsForDistrict(placeString);
 
-    // 실패하면 기존 geocoding API로 폴백
     if (!coords) {
       const geo = await getGeoLocation(searchQuery);
       coords = geo ? { lat: geo.lat, lon: geo.lon } : null;
@@ -96,18 +94,18 @@ export const LocationSearch = ({
       className={cn("relative w-full max-w-2xl", className)}
       ref={wrapperRef}
     >
-      {/* iOS 스타일 검색바 */}
+      
       <div
         className={cn(
           "relative flex items-center transition-all duration-200",
           "bg-white rounded-2xl",
           "border",
           isFocused
-            ? "border-blue-500 shadow-lg shadow-blue-500/20"
+            ? "border-[color:var(--primary-500)] shadow-lg shadow-[color:var(--primary-500)]/20"
             : "border-slate-200 shadow-sm"
         )}
       >
-        {/* 검색 아이콘 */}
+        
         <div className="absolute left-4 flex items-center pointer-events-none">
           {loading ? (
             <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
@@ -115,13 +113,13 @@ export const LocationSearch = ({
             <Search
               className={cn(
                 "w-5 h-5 transition-colors duration-200",
-                isFocused ? "text-blue-500" : "text-slate-400"
+                isFocused ? "text-[color:var(--primary-500)]" : "text-slate-400"
               )}
             />
           )}
         </div>
 
-        {/* 검색 입력 */}
+        
         <input
           ref={inputRef}
           type="text"
@@ -132,13 +130,13 @@ export const LocationSearch = ({
           className={cn(
             "w-full h-12 pl-12 pr-4",
             "bg-transparent outline-none",
-            "text-[15px] text-slate-900 placeholder:text-slate-400",
+            "text-[15px] text-base-primary placeholder:text-muted",
             "transition-all duration-200"
           )}
         />
       </div>
 
-      {/* 검색 결과 드롭다운 */}
+      
       {isOpen && results.length > 0 && (
         <div
           className={cn(
@@ -171,7 +169,7 @@ export const LocationSearch = ({
         </div>
       )}
 
-      {/* 검색 결과 없음 */}
+      
       {isOpen && query.length > 1 && results.length === 0 && !loading && (
         <div
           className={cn(
