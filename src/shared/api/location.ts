@@ -204,7 +204,6 @@ export const searchLocations = async (query: string): Promise<Location[]> => {
     return [];
   }
 
-
   const hasKorean = /[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/.test(query);
 
   let results: Location[] = [];
