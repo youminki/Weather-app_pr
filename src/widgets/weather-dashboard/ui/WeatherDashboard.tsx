@@ -80,8 +80,16 @@ export const WeatherDashboard = ({
   if (isCurrentLoading || isForecastLoading) {
     return (
       <div className="w-full h-96 flex items-center justify-center">
-        <div className="text-muted animate-pulse text-lg font-medium">
-          날씨 정보를 불러오는 중...
+        <div className="w-full max-w-175 mx-auto space-y-6 px-4">
+          <div className="bg-white/6 rounded-3xl p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 bg-slate-200/30 rounded-full animate-pulse" />
+              <div className="flex-1">
+                <div className="h-8 bg-slate-200/30 mb-2 w-48 rounded animate-pulse" />
+                <div className="h-4 bg-slate-200/30 w-32 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

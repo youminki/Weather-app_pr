@@ -1,26 +1,56 @@
 import { useQuery } from "@tanstack/react-query";
 import { weatherApi } from "@shared/api/weather";
 import { Card } from "@shared/ui/Card";
+import { SkeletonCard } from "@shared/ui/Skeleton";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Pencil, Check, X, MapPin, Cloud, Sun } from "lucide-react";
 import { FavoriteLocation, useFavorites } from "@shared/lib/useFavorites";
 import { Button } from "@shared/ui/Button";
 
-interface FavoriteCardProps {
-  favorite: FavoriteLocation;
+interface FavoriteSummary {
+  temp: number;
+  temp_min: number;
+  temp_max: number;
+  icon: string;
+  description: string;
+  lat: number;
+  lon: number;
 }
 
-export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
+interface FavoriteCardProps {
+  favorite: FavoriteLocation;
+  summary?: FavoriteSummary;
+  parentLoading?: boolean;
+}
+
+export const FavoriteCard = ({
+  favorite,
+  summary,
+  parentLoading,
+}: FavoriteCardProps) => {
   const navigate = useNavigate();
   const { updateAlias, removeFavorite } = useFavorites();
   const [isEditing, setIsEditing] = useState(false);
   const [alias, setAlias] = useState(favorite.alias || "");
 
-  const { data } = useQuery({
+  const { data: fetched } = useQuery({
     queryKey: ["weather", favorite.lat, favorite.lon],
     queryFn: () => weatherApi.getCurrentWeather(favorite.lat, favorite.lon),
+    enabled: !summary && !parentLoading,
   });
+
+  const data = summary
+    ? {
+        main: {
+          temp: summary.temp,
+          temp_min: summary.temp_min,
+          temp_max: summary.temp_max,
+          feels_like: summary.temp,
+        },
+        weather: [{ icon: summary.icon, description: summary.description }],
+      }
+    : fetched;
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -49,10 +79,19 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
     }
   };
 
-  if (!data)
-    return <Card className="p-6 animate-pulse bg-white/5">Loading...</Card>;
+  type FavoriteDataLike = {
+    main: {
+      temp: number;
+      temp_min: number;
+      temp_max: number;
+      feels_like?: number;
+    };
+    weather: { icon: string; description: string }[];
+  };
 
-  const { main, weather } = data;
+  if (!data) return <SkeletonCard />;
+
+  const { main, weather } = data as FavoriteDataLike;
   const iconCode = weather[0].icon;
   const isDay = iconCode.includes("d");
 

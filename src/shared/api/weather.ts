@@ -122,6 +122,65 @@ const mapWmoCodeToWeather = (code: number, isDay: number = 1) => {
 };
 
 export const weatherApi = {
+  getCurrentWeatherBatch: async (
+    points: { id: string; lat: number; lon: number }[],
+    concurrency = 4
+  ): Promise<
+    Record<
+      string,
+      {
+        temp: number;
+        temp_min: number;
+        temp_max: number;
+        icon: string;
+        description: string;
+        lat: number;
+        lon: number;
+      }
+    >
+  > => {
+    const results: Record<
+      string,
+      {
+        temp: number;
+        temp_min: number;
+        temp_max: number;
+        icon: string;
+        description: string;
+        lat: number;
+        lon: number;
+      }
+    > = {};
+
+    const chunks: (typeof points)[] = [];
+    for (let i = 0; i < points.length; i += concurrency) {
+      chunks.push(points.slice(i, i + concurrency));
+    }
+
+    for (const chunk of chunks) {
+      const promises = chunk.map(async (p) => {
+        try {
+          const data = await weatherApi.getCurrentWeather(p.lat, p.lon);
+          const summary = {
+            temp: data.main.temp,
+            temp_min: data.main.temp_min,
+            temp_max: data.main.temp_max,
+            icon: data.weather[0].icon,
+            description: data.weather[0].description,
+            lat: p.lat,
+            lon: p.lon,
+          };
+          results[p.id] = summary;
+        } catch {
+          // on error, leave undefined so caller can handle
+        }
+      });
+
+      await Promise.all(promises);
+    }
+
+    return results;
+  },
   getCurrentWeather: async (lat: number, lon: number): Promise<WeatherData> => {
     const response = await axios.get(WEATHER_API_URL, {
       params: {

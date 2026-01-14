@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { queryClient } from "@shared/api/queryClient";
+import { weatherApi } from "@shared/api/weather";
 
 export interface FavoriteLocation {
   id: string;
@@ -51,10 +53,75 @@ export const useFavorites = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (favorites.length === 0) return;
+    void (async () => {
+      try {
+        const points = favorites.map((f) => ({
+          id: f.id,
+          lat: f.lat,
+          lon: f.lon,
+        }));
+        const summaries = await weatherApi.getCurrentWeatherBatch(points, 6);
+        const ids = favorites.map((f) => f.id);
+        queryClient.setQueryData(["favorites-weather", ids], summaries);
+        for (const f of favorites) {
+          const s = summaries[f.id];
+          if (!s) continue;
+          queryClient.setQueryData(["weather", f.lat, f.lon], {
+            main: {
+              temp: s.temp,
+              temp_min: s.temp_min,
+              temp_max: s.temp_max,
+              feels_like: s.temp,
+            },
+            weather: [{ icon: s.icon, description: s.description }],
+            coord: { lat: s.lat, lon: s.lon },
+            name: f.name,
+          });
+        }
+      } catch {
+        // ignore
+      }
+    })();
+  }, [favorites]);
+
   const setGlobal = (favs: FavoriteLocation[]) => {
     globalFavorites = favs;
     persist(globalFavorites);
     notify();
+
+    void (async () => {
+      try {
+        if (globalFavorites.length === 0) return;
+        const points = globalFavorites.map((f) => ({
+          id: f.id,
+          lat: f.lat,
+          lon: f.lon,
+        }));
+        const summaries = await weatherApi.getCurrentWeatherBatch(points, 6);
+        const ids = globalFavorites.map((f) => f.id);
+        queryClient.setQueryData(["favorites-weather", ids], summaries);
+
+        for (const f of globalFavorites) {
+          const s = summaries[f.id];
+          if (!s) continue;
+          queryClient.setQueryData(["weather", f.lat, f.lon], {
+            main: {
+              temp: s.temp,
+              temp_min: s.temp_min,
+              temp_max: s.temp_max,
+              feels_like: s.temp,
+            },
+            weather: [{ icon: s.icon, description: s.description }],
+            coord: { lat: s.lat, lon: s.lon },
+            name: f.name,
+          });
+        }
+      } catch {
+        // ignore prefetch errors
+      }
+    })();
   };
 
   const addFavorite = (location: Omit<FavoriteLocation, "id">) => {
