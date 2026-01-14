@@ -9,6 +9,7 @@ import {
 import { getGeoLocationWithFallback as getGeoLocation } from "@shared/api/weather";
 import { useDebounce } from "@shared/lib/useDebounce";
 import { cn } from "@shared/lib/utils";
+import { Input } from "@shared/ui";
 
 interface LocationSearchProps {
   onSelect: (location: { name: string; lat: number; lon: number }) => void;
@@ -118,7 +119,7 @@ export const LocationSearch = ({
           )}
         </div>
 
-        <input
+        <Input
           ref={inputRef}
           type="text"
           placeholder="지역을 검색하세요"

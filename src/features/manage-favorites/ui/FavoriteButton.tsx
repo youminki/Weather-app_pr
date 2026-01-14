@@ -1,6 +1,6 @@
 import { Star } from "lucide-react";
 import { useFavorites } from "@shared/lib/useFavorites";
-import { Button } from "@shared/ui/Button";
+import { Button } from "@shared/ui";
 
 interface FavoriteButtonProps {
   location: { lat: number; lon: number; name: string };

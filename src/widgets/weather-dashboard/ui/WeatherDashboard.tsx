@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { weatherApi } from "@shared/api/weather";
 import { FavoriteButton } from "@features/manage-favorites/ui/FavoriteButton";
-import { Card } from "@shared/ui/Card";
+import { Card } from "@shared/ui";
 import { cn } from "@shared/lib/utils";
 import { WeeklyForecast } from "./WeeklyForecast";
 import React from "react";

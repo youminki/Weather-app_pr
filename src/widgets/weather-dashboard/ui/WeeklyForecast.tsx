@@ -1,6 +1,6 @@
 import React from "react";
 import { DailyForecast } from "@shared/api/weather";
-import { Card } from "@shared/ui/Card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@shared/ui";
 import { cn } from "@shared/lib/utils";
 import {
   Sun,
@@ -72,10 +72,10 @@ export const WeeklyForecast = ({ daily }: WeeklyForecastProps) => {
 
   return (
     <Card className="w-full bg-white/90 border border-slate-200/50 shadow-lg">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-slate-900">주간 예보</h3>
-        <span className="text-sm text-slate-500 font-medium">7일간</span>
-      </div>
+      <CardHeader className="flex items-center justify-between mb-6">
+        <CardTitle className="text-slate-900">주간 예보</CardTitle>
+        <CardDescription className="text-sm font-medium">7일간</CardDescription>
+      </CardHeader>
 
       <div className="grid grid-cols-1 gap-2">
         {uniqueDaily.map((item, index) => {
