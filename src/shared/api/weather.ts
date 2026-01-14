@@ -123,128 +123,120 @@ const mapWmoCodeToWeather = (code: number, isDay: number = 1) => {
 
 export const weatherApi = {
   getCurrentWeather: async (lat: number, lon: number): Promise<WeatherData> => {
-    try {
-      const response = await axios.get(WEATHER_API_URL, {
-        params: {
-          latitude: lat,
-          longitude: lon,
-          current:
-            "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,is_day,wind_speed_10m,wind_direction_10m",
-          daily: "temperature_2m_max,temperature_2m_min",
-          timezone: "auto",
-        },
-      });
+    const response = await axios.get(WEATHER_API_URL, {
+      params: {
+        latitude: lat,
+        longitude: lon,
+        current:
+          "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,is_day,wind_speed_10m,wind_direction_10m",
+        daily: "temperature_2m_max,temperature_2m_min",
+        timezone: "auto",
+      },
+    });
 
-      const current = response.data.current;
-      const daily = response.data.daily;
-      const weatherInfo = mapWmoCodeToWeather(
-        current.weather_code,
-        current.is_day
-      );
+    const current = response.data.current;
+    const daily = response.data.daily;
+    const weatherInfo = mapWmoCodeToWeather(
+      current.weather_code,
+      current.is_day
+    );
 
-      return {
-        coord: { lon, lat },
-        weather: [
-          {
-            id: current.weather_code,
-            main: weatherInfo.main,
-            description: weatherInfo.desc,
-            icon: weatherInfo.icon,
-          },
-        ],
-        base: "stations",
-        main: {
-          temp: current.temperature_2m,
-          feels_like: current.apparent_temperature,
-          temp_min: daily.temperature_2m_min[0],
-          temp_max: daily.temperature_2m_max[0],
-          pressure: current.pressure_msl,
-          humidity: current.relative_humidity_2m,
+    return {
+      coord: { lon, lat },
+      weather: [
+        {
+          id: current.weather_code,
+          main: weatherInfo.main,
+          description: weatherInfo.desc,
+          icon: weatherInfo.icon,
         },
-        wind: {
-          speed: current.wind_speed_10m,
-          deg: current.wind_direction_10m,
-        },
-        dt: new Date(current.time).getTime() / 1000,
-        tzone_offset: response.data.utc_offset_seconds,
-        name: "Unknown",
-      } as WeatherData;
-    } catch (error) {
-      throw error;
-    }
+      ],
+      base: "stations",
+      main: {
+        temp: current.temperature_2m,
+        feels_like: current.apparent_temperature,
+        temp_min: daily.temperature_2m_min[0],
+        temp_max: daily.temperature_2m_max[0],
+        pressure: current.pressure_msl,
+        humidity: current.relative_humidity_2m,
+      },
+      wind: {
+        speed: current.wind_speed_10m,
+        deg: current.wind_direction_10m,
+      },
+      dt: new Date(current.time).getTime() / 1000,
+      tzone_offset: response.data.utc_offset_seconds,
+      name: "Unknown",
+    } as WeatherData;
   },
 
   getForecast: async (lat: number, lon: number): Promise<ForecastData> => {
-    try {
-      const response = await axios.get(WEATHER_API_URL, {
-        params: {
-          latitude: lat,
-          longitude: lon,
-          hourly: "temperature_2m,weather_code,is_day",
-          daily:
-            "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-          timezone: "auto",
-        },
-      });
+    const response = await axios.get(WEATHER_API_URL, {
+      params: {
+        latitude: lat,
+        longitude: lon,
+        hourly: "temperature_2m,weather_code,is_day",
+        daily:
+          "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+        timezone: "auto",
+      },
+    });
 
-      const hourly = response.data.hourly;
-      const daily = response.data.daily;
+    const hourly = response.data.hourly;
+    const daily = response.data.daily;
 
-      const list = hourly.time.map((time: string, index: number) => {
-        const weatherInfo = mapWmoCodeToWeather(
-          hourly.weather_code[index],
-          hourly.is_day[index]
-        );
-        return {
-          dt: new Date(time).getTime() / 1000,
-          main: {
-            temp: hourly.temperature_2m[index],
-            temp_min: hourly.temperature_2m[index],
-            temp_max: hourly.temperature_2m[index],
-          },
-          weather: [
-            {
-              id: hourly.weather_code[index],
-              main: weatherInfo.main,
-              icon: weatherInfo.icon,
-            },
-          ],
-        };
-      });
-
-      const slicedList = list
-        .filter((item: { dt: number }) => item.dt > Date.now() / 1000)
-        .slice(0, 24);
-
-      const dailyList = daily.time.map((time: string, index: number) => {
-        const weatherInfo = mapWmoCodeToWeather(daily.weather_code[index]);
-        return {
-          dt: new Date(time).getTime() / 1000,
-          temp: {
-            min: daily.temperature_2m_min[index],
-            max: daily.temperature_2m_max[index],
-          },
-          weather: [
-            {
-              id: daily.weather_code[index],
-              main: weatherInfo.main,
-              icon: weatherInfo.icon,
-            },
-          ],
-          pop: daily.precipitation_probability_max
-            ? daily.precipitation_probability_max[index]
-            : 0,
-        };
-      });
-
+    const list = hourly.time.map((time: string, index: number) => {
+      const weatherInfo = mapWmoCodeToWeather(
+        hourly.weather_code[index],
+        hourly.is_day[index]
+      );
       return {
-        list: slicedList,
-        daily: dailyList,
-        city: { name: "Unknown", coord: { lat, lon } },
+        dt: new Date(time).getTime() / 1000,
+        main: {
+          temp: hourly.temperature_2m[index],
+          temp_min: hourly.temperature_2m[index],
+          temp_max: hourly.temperature_2m[index],
+        },
+        weather: [
+          {
+            id: hourly.weather_code[index],
+            main: weatherInfo.main,
+            icon: weatherInfo.icon,
+          },
+        ],
       };
-    } catch (error) {
-      throw error;
-    }
+    });
+
+    const slicedList = list
+      .filter((item: { dt: number }) => item.dt > Date.now() / 1000)
+      .slice(0, 24);
+
+    const dailyList = daily.time.map((time: string, index: number) => {
+      const weatherInfo = mapWmoCodeToWeather(daily.weather_code[index]);
+      return {
+        dt: new Date(time).getTime() / 1000,
+        temp: {
+          min: daily.temperature_2m_min[index],
+          max: daily.temperature_2m_max[index],
+        },
+        weather: [
+          {
+            id: daily.weather_code[index],
+            main: weatherInfo.main,
+            icon: weatherInfo.icon,
+          },
+        ],
+        pop: daily.precipitation_probability_max
+          ? daily.precipitation_probability_max[index]
+          : 0,
+      };
+    });
+
+    return {
+      list: slicedList,
+      daily: dailyList,
+      city: { name: "Unknown", coord: { lat, lon } },
+    };
   },
   getEnvironmental: async (
     lat: number,
@@ -299,7 +291,7 @@ export const weatherApi = {
       }
 
       return { sunrise, sunset, uvIndex, pm10, pm2_5 };
-    } catch (_) {
+    } catch {
       return { uvIndex: null, pm10: null, pm2_5: null };
     }
   },
@@ -329,7 +321,7 @@ export const getGeoLocation = async (
       };
     }
     return null;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
@@ -359,7 +351,7 @@ const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
       };
     }
     return null;
-  } catch (_) {
+  } catch {
     return null;
   }
 };

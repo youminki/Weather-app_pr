@@ -14,4 +14,30 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./src/shared"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react") || id.includes("react-dom"))
+              return "vendor-react";
+            if (id.includes("lucide-react")) return "vendor-icons";
+            if (id.includes("@tanstack")) return "vendor-query";
+            if (id.includes("axios")) return "vendor-axios";
+            return "vendor";
+          }
+
+          const featureMatch = id.match(/\/src\/features\/([^/]+)\//);
+          if (featureMatch) return `feature-${featureMatch[1]}`;
+
+          const widgetMatch = id.match(/\/src\/widgets\/([^/]+)\//);
+          if (widgetMatch) return `widget-${widgetMatch[1]}`;
+
+          if (id.includes("/src/widgets/")) return "widgets";
+          if (id.includes("/src/features/")) return "features";
+          return null;
+        },
+      },
+    },
+  },
 });

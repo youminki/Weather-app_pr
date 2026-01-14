@@ -1,5 +1,23 @@
 import axios from "axios";
-import koreaDistricts from "@shared/assets/korea_districts.json";
+
+let koreaDistricts: string[] | null = null;
+const loadKoreaDistricts = async (): Promise<string[]> => {
+  if (koreaDistricts) return koreaDistricts;
+  try {
+    const res = await fetch(
+      `${import.meta.env.BASE_URL || "/"}korea_districts.json`
+    );
+    if (!res.ok) {
+      koreaDistricts = [];
+      return koreaDistricts;
+    }
+    koreaDistricts = (await res.json()) as string[];
+    return koreaDistricts || [];
+  } catch {
+    koreaDistricts = [];
+    return koreaDistricts;
+  }
+};
 
 const koreaDistrictsIndex: Record<string, string[]> = {};
 
@@ -7,7 +25,6 @@ const localDistrictCoords: Record<
   string,
   { lat: number; lon: number; name?: string }
 > = {};
-
 export interface Location {
   id: number | string;
   name: string;
@@ -24,6 +41,8 @@ export type District = string;
 export const searchDistricts = async (query: string): Promise<District[]> => {
   if (!query || query.length < 1) return [];
   const q = query.toLowerCase().trim();
+
+  const districts = await loadKoreaDistricts();
 
   if (koreaDistrictsIndex && Object.keys(koreaDistrictsIndex).length > 0) {
     const tokens = q.replace(/[-,]/g, " ").split(/\s+/).filter(Boolean);
@@ -60,7 +79,7 @@ export const searchDistricts = async (query: string): Promise<District[]> => {
 
   if (!query || query.length < 2) return [];
   const normalized = q;
-  const results = (koreaDistricts as string[])
+  const results = (districts as string[])
     .filter((d) => {
       const lower = d.toLowerCase();
       return lower.includes(normalized) || d.includes(query);
@@ -92,7 +111,8 @@ async function searchKoreaDistrictsWithGeocoding(
   const results: Location[] = [];
   const seen = new Set<string>();
 
-  const filtered = koreaDistricts
+  const districts = await loadKoreaDistricts();
+  const filtered = (districts || [])
     .filter((district: string) => {
       const lower = district.toLowerCase();
       return lower.includes(normalizedQuery) || district.includes(query);
