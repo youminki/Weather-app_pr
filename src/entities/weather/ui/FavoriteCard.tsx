@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { weatherApi } from "@shared/api/weather";
 import { Card, CardHeader, CardContent, Button, Input } from "@shared/ui";
+import { Popover, PopoverTrigger, PopoverContent } from "@shared/ui";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Pencil, Check, X, MapPin, Cloud, Sun } from "lucide-react";
+import { Check, X, MapPin, Cloud, Sun, MoreHorizontal } from "lucide-react";
 import { FavoriteLocation, useFavorites } from "@shared/lib/useFavorites";
 
 interface FavoriteCardProps {
@@ -102,33 +103,47 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
               </h3>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-slate-400 hover:text-slate-600"
-                onClick={handleEditClick}
-              >
-                <Pencil className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-red-400 hover:text-red-600"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (
-                    confirm(
-                      `즐겨찾기 '${
-                        favorite.alias || favorite.name
-                      }'을(를) 삭제하시겠습니까?`
-                    )
-                  ) {
-                    removeFavorite(favorite.id);
-                  }
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-slate-400 hover:text-slate-600"
+                    aria-label="더보기"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="p-2">
+                  <button
+                    className="w-full text-left text-sm px-2 py-1 hover:bg-slate-100 rounded"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick(e as unknown as React.MouseEvent);
+                    }}
+                  >
+                    편집
+                  </button>
+                  <button
+                    className="w-full text-left text-sm px-2 py-1 text-red-500 hover:bg-red-50 rounded mt-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        confirm(
+                          `즐겨찾기 '${
+                            favorite.alias || favorite.name
+                          }'을(를) 삭제하시겠습니까?`
+                        )
+                      ) {
+                        removeFavorite(favorite.id);
+                      }
+                    }}
+                  >
+                    삭제
+                  </button>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         )}
