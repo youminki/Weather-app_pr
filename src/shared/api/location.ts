@@ -19,8 +19,6 @@ const loadKoreaDistricts = async (): Promise<string[]> => {
   }
 };
 
-const koreaDistrictsIndex: Record<string, string[]> = {};
-
 const localDistrictCoords: Record<
   string,
   { lat: number; lon: number; name?: string }
@@ -41,49 +39,23 @@ export type District = string;
 export const searchDistricts = async (query: string): Promise<District[]> => {
   if (!query || query.length < 1) return [];
   const q = query.toLowerCase().trim();
-
   const districts = await loadKoreaDistricts();
 
-  if (koreaDistrictsIndex && Object.keys(koreaDistrictsIndex).length > 0) {
-    const tokens = q.replace(/[-,]/g, " ").split(/\s+/).filter(Boolean);
-    if (tokens.length === 0) return [];
+  const normalize = (s: string) =>
+    s.toLowerCase().replace(/[,-]+/g, " ").replace(/\s+/g, " ").trim();
 
-    const lists: string[][] = tokens.map((t) => koreaDistrictsIndex[t] || []);
+  const matchDistrict = (district: string, qstr: string) => {
+    const d = normalize(district);
+    const qn = normalize(qstr);
+    if (d.includes(qn)) return true;
+    const qTokens = qn.split(" ").filter(Boolean);
 
-    lists.sort((a, b) => a.length - b.length);
-    let resultSet: Set<string> = new Set(lists[0] || []);
-    for (let i = 1; i < lists.length; i++) {
-      const s = new Set<string>(lists[i]);
-      resultSet = new Set<string>(
-        Array.from(resultSet).filter((x) => s.has(x))
-      );
-      if (resultSet.size === 0) break;
-    }
+    return qTokens.every((t) => d.includes(t));
+  };
 
-    let results: string[] = Array.from(resultSet);
-
-    if (results.length === 0) {
-      const union: Set<string> = new Set<string>();
-      for (const l of lists) l.forEach((x) => union.add(x));
-      results = Array.from(union);
-    }
-
-    results.sort((a, b) => {
-      const ai = a.toLowerCase().indexOf(q);
-      const bi = b.toLowerCase().indexOf(q);
-      return (ai === -1 ? 9999 : ai) - (bi === -1 ? 9999 : bi);
-    });
-
-    return results.slice(0, 10);
-  }
-
-  if (!query || query.length < 2) return [];
-  const normalized = q;
-  const results = (districts as string[])
-    .filter((d) => {
-      const lower = d.toLowerCase();
-      return lower.includes(normalized) || d.includes(query);
-    })
+  if (!q || q.length < 1) return [];
+  const results = (districts || [])
+    .filter((d) => matchDistrict(d, q))
     .slice(0, 10);
   return results;
 };
@@ -201,15 +173,50 @@ export const getCoordsForDistrict = async (
     const reversed = parts.slice().reverse().join(", ");
     candidates.add(reversed);
     candidates.add(parts.slice().reverse().join(" "));
+    candidates.add(parts.slice(-2).join(" "));
+    candidates.add(parts[parts.length - 1]);
   }
+
+  const insertSuffixSpaces = (s: string) =>
+    s
+      .replace(/(시|군|구|도|동|읍|면)/g, "$1 ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  candidates.add(insertSuffixSpaces(district));
 
   for (const q of Array.from(candidates)) {
     try {
       const apiResults = await searchGeocodingApi(q);
       if (apiResults.length > 0) {
-        const loc = apiResults[0];
-        geocodeCache.set(district, loc);
-        return { lat: loc.latitude, lon: loc.longitude };
+        const normalize = (s: string) =>
+          (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+        const districtTokens = district
+          .replace(/-/g, " ")
+          .split(/\s+/)
+          .map((t) => normalize(t))
+          .filter(Boolean);
+
+        let best = apiResults[0];
+        let bestScore = -1;
+        for (const r of apiResults) {
+          let score = 0;
+          const a1 = normalize(r.admin1 || "");
+          const a2 = normalize(r.admin2 || "");
+          const name = normalize(r.name || "");
+          for (const t of districtTokens) {
+            if (a1 && a1.includes(t)) score += 3;
+            if (a2 && a2.includes(t)) score += 2;
+            if (name && name.includes(t)) score += 1;
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            best = r;
+          }
+        }
+
+        geocodeCache.set(district, best);
+        return { lat: best.latitude, lon: best.longitude };
       }
     } catch {
       void 0;
