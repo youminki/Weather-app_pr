@@ -127,7 +127,6 @@ async function searchKoreaDistrictsWithGeocoding(
 
 async function searchGeocodingApi(query: string): Promise<Location[]> {
   try {
-    console.log("[Geocoding API] Query:", query);
     const response = await axios.get<GeocodingApiResponse>(GEOCODING_API_URL, {
       params: {
         name: query,
@@ -136,11 +135,7 @@ async function searchGeocodingApi(query: string): Promise<Location[]> {
         format: "json",
       },
     });
-
-    console.log("[Geocoding API] Response:", response.data);
-
     if (!response.data.results || response.data.results.length === 0) {
-      console.log("[Geocoding API] No results found");
       return [];
     }
 
@@ -154,12 +149,7 @@ async function searchGeocodingApi(query: string): Promise<Location[]> {
       admin2: item.admin2,
       source: "api",
     }));
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("[Geocoding API] Error:", error.message);
-    } else {
-      console.error("[Geocoding API] Unexpected error:", error);
-    }
+  } catch {
     return [];
   }
 }
@@ -195,7 +185,6 @@ export const getCoordsForDistrict = async (
 
   for (const q of Array.from(candidates)) {
     try {
-      console.log("[Geocoding API] Try query:", q);
       const apiResults = await searchGeocodingApi(q);
       if (apiResults.length > 0) {
         const loc = apiResults[0];
@@ -203,7 +192,7 @@ export const getCoordsForDistrict = async (
         return { lat: loc.latitude, lon: loc.longitude };
       }
     } catch {
-      console.error("[getCoordsForDistrict] error for", q);
+      void 0;
     }
   }
 
@@ -212,11 +201,9 @@ export const getCoordsForDistrict = async (
 
 export const searchLocations = async (query: string): Promise<Location[]> => {
   if (!query || query.length < 2) {
-    console.log("[Search] Query too short:", query);
     return [];
   }
 
-  console.log("[Search] Starting search for:", query);
 
   const hasKorean = /[\u3131-\u314e|\u314f-\u3163|\uac00-\ud7a3]/.test(query);
 

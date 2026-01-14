@@ -7,7 +7,6 @@
     "dev": "vite",
     "generate:district-index": "node ./scripts/generate-district-index.cjs",
     "generate:district-coords": "node ./scripts/generate-district-coords.cjs",
-    "generate:district-coords": "node ./scripts/generate-district-coords.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

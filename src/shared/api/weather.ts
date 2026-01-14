@@ -170,7 +170,6 @@ export const weatherApi = {
         name: "Unknown",
       } as WeatherData;
     } catch (error) {
-      console.error("Open-Meteo Weather Error:", error);
       throw error;
     }
   },
@@ -244,11 +243,9 @@ export const weatherApi = {
         city: { name: "Unknown", coord: { lat, lon } },
       };
     } catch (error) {
-      console.error("Open-Meteo Forecast Error:", error);
       throw error;
     }
   },
-  // Fetch environmental data: sunrise/sunset, uv index (daily), and recent pm values (hourly)
   getEnvironmental: async (
     lat: number,
     lon: number
@@ -267,7 +264,6 @@ export const weatherApi = {
           daily: "sunrise,sunset,uv_index_max",
           hourly: "pm10,pm2_5",
           timezone: "auto",
-          // request air-quality style hourly data where available
         },
       });
 
@@ -276,7 +272,6 @@ export const weatherApi = {
 
       const nowTs = Date.now() / 1000;
 
-      // take today's sunrise/sunset and uv index (first elements)
       const sunrise =
         daily.sunrise && daily.sunrise.length > 0
           ? new Date(daily.sunrise[0]).getTime() / 1000
@@ -290,11 +285,9 @@ export const weatherApi = {
           ? daily.uv_index_max[0]
           : null;
 
-      // for pm values, find the hourly value closest to now
       let pm10: number | null = null;
       let pm2_5: number | null = null;
       if (hourly.time && Array.isArray(hourly.time)) {
-        // find index of closest future/present hour
         const idx = hourly.time.findIndex(
           (t: string) => new Date(t).getTime() / 1000 >= nowTs
         );
@@ -306,8 +299,7 @@ export const weatherApi = {
       }
 
       return { sunrise, sunset, uvIndex, pm10, pm2_5 };
-    } catch (error) {
-      console.error("Open-Meteo Environmental Error:", error);
+    } catch (_) {
       return { uvIndex: null, pm10: null, pm2_5: null };
     }
   },
@@ -337,8 +329,7 @@ export const getGeoLocation = async (
       };
     }
     return null;
-  } catch (error) {
-    console.error("Open-Meteo Geocoding Error:", error);
+  } catch (_) {
     return null;
   }
 };
@@ -347,7 +338,6 @@ const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 
 const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
   try {
-    console.log("[Nominatim] Try query:", query);
     const response = await axios.get(NOMINATIM_URL, {
       params: {
         q: query,
@@ -369,8 +359,7 @@ const searchNominatim = async (query: string): Promise<GeoLocation | null> => {
       };
     }
     return null;
-  } catch (e) {
-    console.error("Nominatim Geocoding Error:", e);
+  } catch (_) {
     return null;
   }
 };

@@ -10,7 +10,6 @@ export interface FavoriteLocation {
 
 const STORAGE_KEY = "weather_favorites";
 
-// Module-level store so multiple components share state immediately
 let globalFavorites: FavoriteLocation[] = [];
 const listeners = new Set<(f: FavoriteLocation[]) => void>();
 
@@ -36,7 +35,6 @@ const notify = () => {
   listeners.forEach((l) => l(globalFavorites));
 };
 
-// initialize once
 if (globalFavorites.length === 0) {
   globalFavorites = loadFromStorage();
 }

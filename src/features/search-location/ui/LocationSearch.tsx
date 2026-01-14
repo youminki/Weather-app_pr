@@ -38,8 +38,7 @@ export const LocationSearch = ({
           const matches = await searchDistricts(debouncedQuery);
           setResults(matches);
           setIsOpen(true);
-        } catch (e) {
-          console.error(e);
+        } catch {
           setResults([]);
         } finally {
           setLoading(false);
