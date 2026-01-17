@@ -64,7 +64,7 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
 
   return (
     <Card
-      className="group relative cursor-pointer hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] overflow-hidden bg-white/90 border-slate-200/50 p-4 sm:p-5"
+      className="group relative cursor-pointer hover:scale-[1.02] transition-all duration-200 active:scale-[0.98] overflow-hidden bg-white/90 border-slate-200/50 p-4"
       onClick={handleCardClick}
     >
       <CardHeader onClick={(e) => e.stopPropagation()}>
@@ -74,7 +74,7 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
               type="text"
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
-              className="h-9 text-[15px] flex-1 bg-slate-50/80 backdrop-blur-sm border border-slate-200 rounded-xl px-3 outline-none focus:border-blue-500 focus:bg-white transition-all"
+              className="h-9 text-sm flex-1 bg-slate-50/80 backdrop-blur-sm border border-slate-200 rounded-xl px-3 outline-none focus:border-blue-500 focus:bg-white transition-all"
               autoFocus
             />
             <Button
@@ -96,19 +96,26 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
           </div>
         ) : (
           <div className="flex items-start justify-between w-full">
-            <div className="flex items-center gap-2 group/edit flex-1">
-              <MapPin className="w-4 h-4 text-slate-400" />
-              <h3 className="font-bold text-lg text-slate-900 truncate">
-                {favorite.alias || favorite.name}
-              </h3>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-slate-400" />
+                <h3 className="font-semibold text-base text-slate-900 truncate">
+                  {favorite.alias || favorite.name}
+                </h3>
+              </div>
+              {favorite.alias && (
+                <div className="text-xs text-slate-400 mt-1 truncate">
+                  {favorite.name}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-4">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover/edit:opacity-100 transition-opacity text-slate-400 hover:text-slate-600"
+                    className="h-6 w-6 text-slate-400 hover:text-slate-600"
                     aria-label="더보기"
                   >
                     <MoreHorizontal className="h-3 w-3" />
@@ -150,17 +157,17 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-3">
+          <div className="flex items-center gap-3 flex-1">
             <WeatherIcon
-              className="w-10 h-10 sm:w-12 sm:h-12 text-blue-500"
+              className="w-12 h-12 text-blue-500"
               strokeWidth={1.5}
             />
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <div className="min-w-0">
+              <div className="text-2xl font-bold text-slate-900">
                 {Math.round(main.temp)}°
               </div>
-              <p className="text-sm text-slate-500 font-medium mt-1 w-full sm:max-w-[18rem] truncate">
+              <p className="text-sm text-slate-500 font-medium mt-1 truncate">
                 {weather[0].description}
               </p>
             </div>
@@ -170,12 +177,12 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
             <div className="text-xs text-slate-400 font-medium mb-1">
               최고/최저
             </div>
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <span className="text-red-500 text-sm sm:text-base">
+            <div className="flex items-center gap-2 text-sm font-semibold justify-end">
+              <span className="text-red-500 text-base">
                 {Math.round(main.temp_max)}°
               </span>
               <span className="text-slate-300">·</span>
-              <span className="text-blue-500 text-sm sm:text-base">
+              <span className="text-blue-500 text-base">
                 {Math.round(main.temp_min)}°
               </span>
             </div>
