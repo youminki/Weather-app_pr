@@ -26,8 +26,9 @@ const loadFromStorage = (): FavoriteLocation[] => {
 const persist = (favs: FavoriteLocation[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
+    return true;
   } catch {
-    void 0;
+    return false;
   }
 };
 
@@ -57,25 +58,46 @@ export const useFavorites = () => {
     notify();
   };
 
-  const addFavorite = (location: Omit<FavoriteLocation, "id">) => {
+  const addFavorite = (location: Omit<FavoriteLocation, "id">): boolean => {
     if (globalFavorites.length >= 6) {
-      alert("Maximum 6 favorites allowed");
-      return;
+      return false;
     }
     const id = `${location.lat}-${location.lon}`;
-    if (globalFavorites.some((f) => f.id === id)) return;
+    if (globalFavorites.some((f) => f.id === id)) return true;
     const newFavorite = { ...location, id };
-    setGlobal([...globalFavorites, newFavorite]);
+    const newList = [...globalFavorites, newFavorite];
+    setGlobal(newList);
+    const ok = persist(newList);
+    if (!ok) {
+      // revert
+      globalFavorites = globalFavorites.filter((f) => f.id !== id);
+      notify();
+    }
+    return ok;
   };
 
-  const removeFavorite = (id: string) => {
-    setGlobal(globalFavorites.filter((f) => f.id !== id));
+  const removeFavorite = (id: string): boolean => {
+    const newList = globalFavorites.filter((f) => f.id !== id);
+    setGlobal(newList);
+    const ok = persist(newList);
+    if (!ok) {
+      // try to restore previous state
+      setGlobal(globalFavorites);
+      return false;
+    }
+    return true;
   };
 
   const updateAlias = (id: string, newAlias: string | undefined) => {
-    setGlobal(
-      globalFavorites.map((f) => (f.id === id ? { ...f, alias: newAlias } : f))
+    const newList = globalFavorites.map((f) =>
+      f.id === id ? { ...f, alias: newAlias } : f,
     );
+    setGlobal(newList);
+    const ok = persist(newList);
+    if (!ok) {
+      // try to revert by reloading from storage
+      setGlobal(loadFromStorage());
+    }
   };
 
   return { favorites, addFavorite, removeFavorite, updateAlias };

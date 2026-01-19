@@ -16,7 +16,7 @@ export const DialogPortal = ({
   <DialogPrimitive.Portal {...props}>
     <div
       className={cn(
-        "fixed inset-0 z-50 flex items-end sm:items-center justify-center",
+        "fixed inset-0 z-50 flex items-center justify-center",
         className
       )}
     >
@@ -31,7 +31,7 @@ export const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 bg-black/40", className)}
+    className={cn("fixed inset-0 bg-black/60 backdrop-blur-sm", className)}
     {...props}
   />
 ));
@@ -41,16 +41,21 @@ export const DialogContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => (
-  <DialogPrimitive.Content
-    ref={ref}
-    className={cn(
-      "relative w-full sm:max-w-lg mx-4 bg-white rounded-lg shadow-lg p-4",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </DialogPrimitive.Content>
+  <DialogPrimitive.Portal>
+    <div className={cn("fixed inset-0 z-50 flex items-center justify-center")}>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "relative w-11/12 sm:w-80 md:w-96 mx-4 bg-white rounded-lg shadow-xl p-6 aspect-square max-h-[90vh] overflow-auto flex flex-col",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </DialogPrimitive.Content>
+    </div>
+  </DialogPrimitive.Portal>
 ));
 DialogContent.displayName = "DialogContent";
 
@@ -86,5 +91,34 @@ export const DialogDescription = React.forwardRef<
 DialogDescription.displayName = "DialogDescription";
 
 export const DialogClose = DialogPrimitive.Close;
+
+type DialogFooterProps = React.HTMLAttributes<HTMLDivElement> & {
+  row?: boolean;
+};
+
+export const DialogFooter = ({
+  className,
+  children,
+  row = false,
+  ...props
+}: DialogFooterProps) => {
+  if (row) {
+    return (
+      <div className={cn("mt-auto w-full flex gap-2", className)} {...props}>
+        {React.Children.map(children, (child) => (
+          <div className="flex-1">{child as React.ReactNode}</div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("mt-auto w-full flex flex-col gap-2", className)} {...props}>
+      {React.Children.map(children, (child) => (
+        <div className="w-full">{child as React.ReactNode}</div>
+      ))}
+    </div>
+  );
+};
 
 export default Dialog;
