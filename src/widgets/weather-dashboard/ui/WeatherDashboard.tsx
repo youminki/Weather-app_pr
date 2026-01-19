@@ -44,7 +44,7 @@ const getWeatherIcon = (iconCode: string) => {
 const renderWeatherIcon = (
   iconCode: string,
   className: string,
-  strokeWidth = 1.5
+  strokeWidth = 1.5,
 ) => {
   const Icon = getWeatherIcon(iconCode);
   return React.createElement(Icon, { className, strokeWidth });
@@ -117,7 +117,7 @@ export const WeatherDashboard = ({
             {renderWeatherIcon(
               current.weather[0].icon,
               "w-16 h-16 sm:w-20 sm:h-20 text-white",
-              1.5
+              1.5,
             )}
             <div>
               <div className="text-4xl sm:text-6xl font-extrabold text-white">
@@ -177,7 +177,7 @@ export const WeatherDashboard = ({
       </Card>
 
       <Card className="w-full bg-white/90 border border-slate-200/50 shadow-lg">
-        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2 p-6 pb-0">
+        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2 pb-0">
           <Sun className="w-5 h-5 text-orange-500" /> 시간별 예보
         </h3>
 

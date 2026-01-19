@@ -90,7 +90,7 @@ export const HourlyForecastGraph = ({ items }: HourlyForecastGraphProps) => {
     <div className="w-full overflow-x-auto scrollbar-hide">
       <div
         className="relative"
-        style={{ width: `${width}px`, height: "260px" }}
+        style={{ width: `${width}px`, height: "200px" }}
       >
         <svg
           width={width}
@@ -103,6 +103,25 @@ export const HourlyForecastGraph = ({ items }: HourlyForecastGraphProps) => {
               <stop offset="100%" stopColor="var(--color-slate-300)" />
             </linearGradient>
           </defs>
+
+          {/* Vertical Lines */}
+          {data.map((d, i) => {
+            const x = i * itemWidth + itemWidth / 2;
+            const y = getY(d.temp);
+            return (
+              <line
+                key={`line-${d.dt}`}
+                x1={x}
+                y1={y}
+                x2={x}
+                y2={graphHeight}
+                stroke="var(--color-slate-200)"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+              />
+            );
+          })}
+
           <polyline
             points={points}
             fill="none"
@@ -146,11 +165,11 @@ export const HourlyForecastGraph = ({ items }: HourlyForecastGraphProps) => {
                 className="flex flex-col items-center justify-between h-full py-2"
                 style={{ width: `${itemWidth}px` }}
               >
-                <div style={{ marginTop: `${topPadding + y - 60}px` }}>
+                <div style={{ marginTop: `${topPadding + y - 45}px` }}>
                   {" "}
                   <span
                     className={cn(
-                      "text-base font-bold",
+                      "text-sm font-bold",
                       isNow ? "text-(--primary-600)" : "text-slate-700",
                     )}
                   >
@@ -160,21 +179,22 @@ export const HourlyForecastGraph = ({ items }: HourlyForecastGraphProps) => {
 
                 <div className="flex-1" />
 
-                <div className="flex flex-col items-center gap-2 mb-2">
-                  <div className="h-8 w-8 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-1 mb-1">
+                  {" "}
+                  <div className="h-6 w-6 flex items-center justify-center">
+                    {" "}
                     {getWeatherIcon(
                       d.icon,
                       cn(
-                        "w-6 h-6",
+                        "w-5 h-5",
                         isNow ? "text-(--primary-500)" : "text-slate-500",
                       ),
                     )}
                   </div>
-
                   {d.pop > 0 ? (
                     <div className="flex items-center gap-0.5">
-                      <Droplets className="w-3 h-3 text-sky-500" />
-                      <span className="text-xs font-medium text-sky-500">
+                      <Droplets className="w-2.5 h-2.5 text-sky-500" />
+                      <span className="text-[10px] font-medium text-sky-500">
                         {typeof d.pop === "number" && d.pop <= 1
                           ? Math.round(d.pop * 100)
                           : d.pop}
@@ -182,10 +202,9 @@ export const HourlyForecastGraph = ({ items }: HourlyForecastGraphProps) => {
                       </span>
                     </div>
                   ) : (
-                    <div className="h-4" />
+                    <div className="h-3.5" />
                   )}
-
-                  <div className="text-xs font-medium text-slate-500">
+                  <div className="text-[11px] font-medium text-slate-500">
                     {isNow ? "지금" : isNewDay ? "내일" : `${hour}시`}
                   </div>
                 </div>
