@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, Loader2, MapPin } from "lucide-react";
-import { useFavorites } from "@shared/lib/useFavorites";
+import { Search, Loader2, MapPin, X } from "lucide-react";
 import {
   searchDistricts,
   District,
@@ -29,7 +28,35 @@ export const LocationSearch = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedQuery = useDebounce(query, 100);
-  const { favorites } = useFavorites();
+  const RECENT_KEY = "weather_recent_searches";
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const pushRecent = (place: string) => {
+    try {
+      const cleaned = place;
+      const next = [cleaned, ...recentSearches.filter((r) => r !== cleaned)].slice(0, 8);
+      setRecentSearches(next);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    } catch {
+      void 0;
+    }
+  };
+  const removeRecent = (place: string) => {
+    try {
+      const next = recentSearches.filter((r) => r !== place);
+      setRecentSearches(next);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    } catch {
+      void 0;
+    }
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -82,6 +109,7 @@ export const LocationSearch = ({
 
     if (coords) {
       onSelect({ name: placeString, lat: coords.lat, lon: coords.lon });
+      pushRecent(placeString.replace(/-/g, " "));
       setQuery("");
       setIsOpen(false);
       setIsFocused(false);
@@ -148,20 +176,16 @@ export const LocationSearch = ({
             "animate-in fade-in slide-in-from-top-2 duration-200"
           )}
         >
+          <div className="px-4 py-3 border-b border-slate-100">
+            <div className="text-sm font-semibold text-slate-700">최근 검색어</div>
+          </div>
           <ul className="max-h-[60vh] overflow-y-auto">
-            {favorites.length === 0 ? (
-              <li className="px-4 py-3 text-slate-500">즐겨찾기가 없습니다.</li>
+            {recentSearches.length === 0 ? (
+              <li className="px-4 py-3 text-slate-500">최근 검색어가 없습니다.</li>
             ) : (
-              favorites.map((fav) => (
+              recentSearches.map((r, idx) => (
                 <li
-                  key={fav.id}
-                  onClick={() => {
-                    onSelect({ name: fav.name, lat: fav.lat, lon: fav.lon });
-                    setQuery("");
-                    setIsOpen(false);
-                    setIsFocused(false);
-                    inputRef.current?.blur();
-                  }}
+                  key={`${r}-${idx}`}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3",
                     "cursor-pointer transition-colors duration-150",
@@ -169,8 +193,23 @@ export const LocationSearch = ({
                     "border-b border-slate-100 last:border-0"
                   )}
                 >
-                  <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <span className="text-[15px] text-slate-900">{fav.name}</span>
+                  <button
+                    onClick={() => handleSelect(r.replace(/ /g, "-"))}
+                    className="flex items-center gap-3 flex-1 text-left"
+                  >
+                    <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <span className="text-[15px] text-slate-900 truncate">{r}</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeRecent(r);
+                    }}
+                    aria-label={`최근검색어 삭제 ${r}`}
+                    className="ml-2 p-1 rounded-md text-slate-400 hover:bg-slate-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </li>
               ))
             )}
