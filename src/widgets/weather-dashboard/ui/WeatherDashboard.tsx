@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { weatherApi } from "@shared/api/weather";
 import { FavoriteButton } from "@features/manage-favorites/ui/FavoriteButton";
 import { Card } from "@shared/ui";
-import { cn } from "@shared/lib/utils";
 import { WeeklyForecast } from "./WeeklyForecast";
+import { HourlyForecastGraph } from "./HourlyForecastGraph";
 import React from "react";
 import {
   Droplets,
@@ -16,12 +16,6 @@ import {
   CloudSnow,
   CloudDrizzle,
 } from "lucide-react";
-
-const formatPop = (pop: number) => {
-  if (pop == null) return "";
-  const value = pop > 1 ? Math.round(pop) : Math.round(pop * 100);
-  return `${value}%`;
-};
 
 const getWeatherIcon = (iconCode: string) => {
   const code = iconCode.slice(0, 2);
@@ -183,67 +177,12 @@ export const WeatherDashboard = ({
       </Card>
 
       <Card className="w-full bg-white/90 border border-slate-200/50 shadow-lg">
-        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2 p-6 pb-0">
           <Sun className="w-5 h-5 text-orange-500" /> 시간별 예보
         </h3>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {forecast.list.slice(0, 12).map((item) => {
-            const HourIcon = getWeatherIcon(item.weather[0].icon);
-            const hour = new Date(item.dt * 1000).getHours();
-            const isNow = hour === new Date().getHours();
-
-            return (
-              <div
-                key={item.dt}
-                className={cn(
-                  "flex flex-col items-center gap-2 min-w-16 p-2 sm:min-w-20 sm:p-3 rounded-2xl transition-all duration-200",
-                  isNow
-                    ? "bg-(--primary-50) border-2 border-(--primary-500)"
-                    : "bg-white/50 hover:bg-white/60"
-                )}
-              >
-                <span
-                  className={cn(
-                    "text-sm font-semibold",
-                    isNow ? "text-(--primary-600)" : "text-slate-600"
-                  )}
-                >
-                  {Math.round(item.main.temp)}°
-                </span>
-
-                <div
-                  className={cn(
-                    "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full",
-                    isNow ? "bg-(--primary-500)/10" : "bg-white"
-                  )}
-                >
-                  <HourIcon
-                    className={cn(
-                      "w-6 h-6 sm:w-7 sm:h-7",
-                      isNow ? "text-(--primary-500)" : "text-slate-700"
-                    )}
-                    strokeWidth={1.5}
-                  />
-                </div>
-
-                {item.pop && item.pop > 0 ? (
-                  <div className="flex items-center gap-1">
-                    <Droplets className="w-3 h-3 text-(--primary-500)" />
-                    <span className="text-xs font-semibold text-(--primary-500)">
-                      {formatPop(item.pop)}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="h-4" />
-                )}
-
-                <span className={cn("text-xs text-slate-500")}>
-                  {isNow ? "지금" : `${hour}시`}
-                </span>
-              </div>
-            );
-          })}
+        <div className="pb-4">
+          <HourlyForecastGraph items={forecast.list} />
         </div>
       </Card>
 
