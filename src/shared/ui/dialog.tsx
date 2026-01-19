@@ -17,7 +17,7 @@ export const DialogPortal = ({
     <div
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center",
-        className
+        className,
       )}
     >
       {children}
@@ -48,7 +48,7 @@ export const DialogContent = React.forwardRef<
         ref={ref}
         className={cn(
           "relative w-11/12 sm:w-80 md:w-96 mx-4 bg-white rounded-lg shadow-xl p-6 aspect-square max-h-[90vh] overflow-auto flex flex-col",
-          className
+          className,
         )}
         {...props}
       >
@@ -113,7 +113,10 @@ export const DialogFooter = ({
   }
 
   return (
-    <div className={cn("mt-auto w-full flex flex-col gap-2", className)} {...props}>
+    <div
+      className={cn("mt-auto w-full flex flex-col gap-2", className)}
+      {...props}
+    >
       {React.Children.map(children, (child) => (
         <div className="w-full">{child as React.ReactNode}</div>
       ))}

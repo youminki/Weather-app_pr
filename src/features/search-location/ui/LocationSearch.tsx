@@ -41,7 +41,10 @@ export const LocationSearch = ({
   const pushRecent = (place: string) => {
     try {
       const cleaned = place;
-      const next = [cleaned, ...recentSearches.filter((r) => r !== cleaned)].slice(0, 8);
+      const next = [
+        cleaned,
+        ...recentSearches.filter((r) => r !== cleaned),
+      ].slice(0, 8);
       setRecentSearches(next);
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {
@@ -131,7 +134,7 @@ export const LocationSearch = ({
           "border",
           isFocused
             ? "border-[color:var(--primary-500)] shadow-lg shadow-[color:var(--primary-500)]/20"
-            : "border-slate-200 shadow-sm"
+            : "border-slate-200 shadow-sm",
         )}
       >
         <div className="absolute left-4 flex items-center pointer-events-none">
@@ -141,7 +144,9 @@ export const LocationSearch = ({
             <Search
               className={cn(
                 "w-5 h-5 transition-colors duration-200",
-                isFocused ? "text-[color:var(--primary-500)]" : "text-slate-400"
+                isFocused
+                  ? "text-[color:var(--primary-500)]"
+                  : "text-slate-400",
               )}
             />
           )}
@@ -161,7 +166,7 @@ export const LocationSearch = ({
             "w-full h-12 pl-12 pr-4",
             "bg-transparent outline-none",
             "text-[15px] text-base-primary placeholder:text-muted",
-            "transition-all duration-200"
+            "transition-all duration-200",
           )}
         />
       </div>
@@ -173,15 +178,19 @@ export const LocationSearch = ({
             "bg-white rounded-2xl",
             "border border-slate-200 shadow-xl",
             "overflow-hidden",
-            "animate-in fade-in slide-in-from-top-2 duration-200"
+            "animate-in fade-in slide-in-from-top-2 duration-200",
           )}
         >
           <div className="px-4 py-3 border-b border-slate-100">
-            <div className="text-sm font-semibold text-slate-700">최근 검색어</div>
+            <div className="text-sm font-semibold text-slate-700">
+              최근 검색어
+            </div>
           </div>
           <ul className="max-h-[60vh] overflow-y-auto">
             {recentSearches.length === 0 ? (
-              <li className="px-4 py-3 text-slate-500">최근 검색어가 없습니다.</li>
+              <li className="px-4 py-3 text-slate-500">
+                최근 검색어가 없습니다.
+              </li>
             ) : (
               recentSearches.map((r, idx) => (
                 <li
@@ -190,7 +199,7 @@ export const LocationSearch = ({
                     "flex items-center gap-3 px-4 py-3",
                     "cursor-pointer transition-colors duration-150",
                     "hover:bg-slate-50 active:bg-slate-100",
-                    "border-b border-slate-100 last:border-0"
+                    "border-b border-slate-100 last:border-0",
                   )}
                 >
                   <button
@@ -198,7 +207,9 @@ export const LocationSearch = ({
                     className="flex items-center gap-3 flex-1 text-left"
                   >
                     <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="text-[15px] text-slate-900 truncate">{r}</span>
+                    <span className="text-[15px] text-slate-900 truncate">
+                      {r}
+                    </span>
                   </button>
                   <button
                     onClick={(e) => {
@@ -224,7 +235,7 @@ export const LocationSearch = ({
               "bg-white rounded-2xl",
               "border border-slate-200 shadow-xl",
               "overflow-hidden",
-              "animate-in fade-in slide-in-from-top-2 duration-200"
+              "animate-in fade-in slide-in-from-top-2 duration-200",
             )}
           >
             <ul className="max-h-[60vh] overflow-y-auto">
@@ -236,7 +247,7 @@ export const LocationSearch = ({
                     "flex items-center gap-3 px-4 py-3",
                     "cursor-pointer transition-colors duration-150",
                     "hover:bg-slate-50 active:bg-slate-100",
-                    "border-b border-slate-100 last:border-0"
+                    "border-b border-slate-100 last:border-0",
                   )}
                 >
                   <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -257,7 +268,7 @@ export const LocationSearch = ({
             "bg-white rounded-2xl",
             "border border-slate-200 shadow-xl",
             "p-6 text-center",
-            "animate-in fade-in slide-in-from-top-2 duration-200"
+            "animate-in fade-in slide-in-from-top-2 duration-200",
           )}
         >
           <p className="text-[15px] text-slate-500">검색 결과가 없습니다.</p>

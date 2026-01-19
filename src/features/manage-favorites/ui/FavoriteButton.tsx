@@ -54,20 +54,20 @@ export const FavoriteButton = ({ location }: FavoriteButtonProps) => {
 
       <Dialog open={showError} onOpenChange={setShowError}>
         <DialogContent className="sm:max-w-106.25">
-            <DialogHeader>
-              <DialogTitle>즐겨찾기 추가 불가</DialogTitle>
-              <DialogDescription>
-                즐겨찾기는 최대 6개까지만 등록할 수 있습니다.
-                <br />
-                불필요한 항목을 삭제한 뒤 다시 시도해주세요.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button className="w-full" onClick={() => setShowError(false)}>
-                닫기
-              </Button>
-            </DialogFooter>
-          </DialogContent>
+          <DialogHeader>
+            <DialogTitle>즐겨찾기 추가 불가</DialogTitle>
+            <DialogDescription>
+              즐겨찾기는 최대 6개까지만 등록할 수 있습니다.
+              <br />
+              불필요한 항목을 삭제한 뒤 다시 시도해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button className="w-full" onClick={() => setShowError(false)}>
+              닫기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

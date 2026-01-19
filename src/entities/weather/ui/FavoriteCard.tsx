@@ -209,7 +209,11 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
                 취소
               </Button>
             </DialogClose>
-            <Button variant="destructive" onClick={confirmDelete} className="w-full">
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              className="w-full"
+            >
               삭제
             </Button>
           </DialogFooter>
@@ -225,7 +229,10 @@ export const FavoriteCard = ({ favorite }: FavoriteCardProps) => {
           </DialogHeader>
           <DialogFooter row>
             <div />
-            <Button className="w-full" onClick={() => setShowDeleteError(false)}>
+            <Button
+              className="w-full"
+              onClick={() => setShowDeleteError(false)}
+            >
               확인
             </Button>
           </DialogFooter>
